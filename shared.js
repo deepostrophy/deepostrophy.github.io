@@ -297,12 +297,12 @@ const SHARED_CSS = String.raw`
 
   /* --- Account --- */
   .acct-grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:22px}
-  .acct-card{border:1px solid var(--stroke);border-radius:18px;background:rgba(255,255,255,.04);padding:20px}
+  .acct-card{border:1px solid var(--stroke);border-radius:18px;background:rgba(255,255,255,.04);padding:20px;min-width:0}
   .acct-card h3{margin:0 0 4px;font-size:18px} .acct-card .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
   .acct-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 0;border-bottom:1px dashed rgba(255,255,255,.08);font-size:14px}
   .acct-row:last-child{border-bottom:none} .acct-row b{color:var(--muted);font-weight:600}
-  .acct-big{display:flex;align-items:center;gap:14px;margin-bottom:14px}
-  .acct-big .av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:22px;color:#0a0a12;background:linear-gradient(120deg,var(--a1),var(--a2))}
+  .acct-big{display:flex;align-items:center;gap:14px;margin-bottom:14px} .acct-big>div:last-child{min-width:0} .acct-big .note{overflow-wrap:anywhere;word-break:break-word}
+  .acct-big .av{flex:0 0 auto;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:22px;color:#0a0a12;background:linear-gradient(120deg,var(--a1),var(--a2))}
   .verify-banner{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid rgba(255,210,122,.35);background:rgba(255,210,122,.08);color:#ffd27a;border-radius:14px;padding:12px 16px;margin-top:18px}
   .act-list{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow:auto}
   .act-item{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:13.5px;padding:8px 10px;border:1px solid var(--stroke);border-radius:10px}
@@ -526,7 +526,7 @@ const I18N = {
     /* --- হিরো / ওয়েলকাম --- */
     "Portfolio · App Store":"Portfolio · App Store",
     "ওয়েলকাম টু":"Welcome to",
-    "আমি অ্যাপ, AI টুল আর ডিজাইন বানাই — পরিষ্কার, দ্রুত আর দেখতে সুন্দর।":"I build apps, AI tools and design — clean, fast and easy on the eyes.",
+    "আমি অ্যাপ, AI টুল আর ডিজাইন বানাই — পরিষ্কার, দ্রুত আর দেখতে সুন্দর।":"Build apps, AI tools and design — clean, fast and easy on the eyes.",
     "যোগাযোগ করুন":"Get in touch",
     "আর্ট ও ডিজাইন":"Art & design", "পাইথন":"Python",
     "পরিষ্কার UI ও দ্রুত অভিজ্ঞতা":"Clean UI, fast experience", "AI দিয়ে বাস্তব সমাধান":"Real solutions with AI",
