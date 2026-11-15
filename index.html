@@ -232,10 +232,11 @@ document.addEventListener("input",e=>{ if(e.target.id==="search"){ filter.q=e.ta
 document.addEventListener("click",e=>{ const c=e.target.closest("#cat-filters .filter[data-cat]"); if(c){ const v=c.dataset.cat; filter.cat.has(v)?filter.cat.delete(v):filter.cat.add(v); c.classList.toggle("on"); const h=location.hash; if(h.startsWith("#store/")) drawItems(h.slice(7)); } });
 
 /* ---- বিস্তারিত ---- */
-function renderItem(id){
+async function renderItem(id){
   const it=itemById(id); const el=$("page-item");
   if(!it||!it.published){ el.innerHTML='<div class="empty"><b>আইটেমটি পাওয়া যায়নি বা প্রকাশিত নয়।</b><a href="#home" class="btn sm primary" data-link>হোমে ফিরুন</a></div>'; return; }
   const st=storeById(it.storeId); const L=it.links||{};
+  let savedNow=false; try{ savedNow=await Activity.isSaved(id); }catch(e){}
   const img=it.coverImage&&isValidUrl(it.coverImage), grad=it.coverColor||(st?(KINDS[st.kind]||KINDS.custom):null);
   const bgCss = img?"": (typeof grad==="string"?grad:`linear-gradient(120deg,${grad?grad.c[0]:"#6d28d9"},${grad?grad.c[1]:"#22d3ee"})`);
   const overlay=reduce?"":`<canvas class="mosaic" data-grad="${img?"":esc(bgCss)}" data-img="${img?esc(it.coverImage):""}"></canvas>`;
@@ -254,10 +255,12 @@ function renderItem(id){
         <div class="panel reveal"><h3>লিংক ও ডাউনলোড</h3><div class="card-actions" style="flex-direction:column;align-items:stretch">
           ${isValidUrl(L.source)?`<a class="btn ghost full en" href="${esc(L.source)}" target="_blank" rel="noopener">সোর্স কোড</a>`:""}
           ${isValidUrl(L.download)?`<a class="btn primary full" href="${esc(L.download)}" target="_blank" rel="noopener" data-download data-name="${esc(it.name)}">ডাউনলোড</a>`:""}
+          <button class="btn ghost full" type="button" id="item-save" data-id="${esc(it.id)}" data-name="${esc(it.name)}" data-store="${esc(it.storeId)}">${savedNow?"★ Saved":"☆ Save"}</button>
           ${!isValidUrl(L.source)&&!isValidUrl(L.download)?`<p class="note">এই আইটেমের কোনো লিংক যোগ করা হয়নি।</p>`:""}
         </div></div>
         <div class="panel reveal"><h3>তথ্য</h3><div class="kv"><div class="row"><b>স্টোর</b><span data-i18n-keep>${esc(st?st.name:"—")}</span></div><div class="row"><b>ধরন</b><span>${esc(t(it.category||"—"))}</span></div>${extraRows}</div></div>
       </div></div>`;
+  const sb=$("item-save"); if(sb) sb.addEventListener("click", async()=>{ if(!Auth.user){ openAuth("login"); return; } const now=await Activity.toggleSave({ id:sb.dataset.id, name:sb.dataset.name, storeId:sb.dataset.store }); sb.textContent = now?"★ Saved":"☆ Save"; });
 }
 
 /* ---- about / contact ---- */
@@ -290,7 +293,7 @@ async function _route(){
   const [base, arg] = raw.split("/");
   if (base === "home" || base === "stores") { renderHome(); showPage("home"); if (base === "stores") toStoreList(); }
   else if (base === "store" && arg) { renderStore(arg); showPage("store"); }
-  else if (base === "item" && arg) { renderItem(arg); showPage("item"); }
+  else if (base === "item" && arg) { await renderItem(arg); showPage("item"); }
   else if (base === "about") { renderAbout(); showPage("about"); }
   else if (base === "contact") { renderContact(); showPage("contact"); }
   else if (base === "account") { await renderAccount(); showPage("account"); }
@@ -409,6 +412,7 @@ async function renderAccount(){
   const verified=(MODE==="fs")?!!u.emailVerified:true;
   const dl=(act.downloads||[]).map(x=>`<div class="act-item"><span class="nm">${esc(x.name||"file")}</span><span class="dt">${fmtDate(x.ts)}</span></div>`).join("")||'<p class="note">No downloads yet.</p>';
   const msgs=(act.messages||[]).map(x=>`<div class="act-item"><span class="nm">${esc((x.body||"").slice(0,60))}</span><span class="dt">${fmtDate(x.ts)}</span></div>`).join("")||'<p class="note">No messages sent yet.</p>';
+  const saved=(act.saved||[]).map(x=>`<div class="act-item"><a class="nm" href="#item/${esc(x.id)}" data-link style="color:inherit;text-decoration:none">${esc(x.name||"আইটেম")}</a><span class="dt">${fmtDate(x.ts)}</span></div>`).join("")||'<p class="note">No saved items yet.</p>';
   box.innerHTML=`
     ${!verified?`<div class="verify-banner"><span>Please verify your email to keep your account secure.</span><button class="btn ghost sm" type="button" id="acct-resend">Resend</button></div>`:""}
     <div class="acct-grid">
@@ -438,7 +442,7 @@ async function renderAccount(){
       <div class="acct-card reveal" style="grid-column:1/-1">
         <h3>Activity</h3><p class="sub">Downloads, saved items and messages.</p>
         <div class="eyebrow">Downloads</div><div class="act-list" style="margin:8px 0 16px">${dl}</div>
-        <div class="eyebrow">Saved items</div><p class="note" style="margin:8px 0 16px">Nothing saved yet.</p>
+        <div class="eyebrow">Saved items</div><div class="act-list" style="margin:8px 0 16px">${saved}</div>
         <div class="eyebrow">Messages sent</div><div class="act-list">${msgs}</div>
       </div>
     </div>`;
@@ -450,7 +454,7 @@ async function renderAccount(){
   const del=$("acct-delete"); if(del) del.addEventListener("click", async()=>{ if(!confirm("Delete your account? This cannot be undone.")) return; try{ await Auth.deleteAccount(); updateAuthUI(); location.hash="#home"; }catch(e){ secMsg(errText(e)); } });
   const lg=$("acct-lang"); if(lg) lg.addEventListener("click",()=>{ const b=$("lang-btn"); if(b) b.click(); });
   const snd=$("acct-sound"); if(snd) snd.addEventListener("click",()=>{ setSound(!SOUND); renderAccount(); });
-  const mo=$("acct-motion"); if(mo) mo.addEventListener("click",()=>{ const cur=document.documentElement.classList.toggle("reduce-motion"); try{ localStorage.setItem("deeo.motion", cur?"off":"on"); }catch(e){} renderAccount(); });
+  const mo=$("acct-motion"); if(mo) mo.addEventListener("click",()=>{ setMotion(!reduce); renderAccount(); });
   observeReveals();
 }
 

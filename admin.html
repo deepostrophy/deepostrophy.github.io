@@ -185,6 +185,7 @@
   <form class="modal-body" id="item-form">
     <input type="hidden" id="i-id"/>
     <div class="two"><div class="field"><label>স্টোর</label><select id="i-store" class="pf"></select></div><div class="field"><label>ধরন (type)</label><select id="i-category" class="pf"></select></div></div>
+    <div class="field" id="fld-cat-custom" style="display:none"><label>কাস্টম টাইপের নাম</label><input id="i-category-custom" placeholder="যেমন: গেম, টেমপ্লেট, UI কিট…"/></div>
     <div class="field"><label>নাম</label><input id="i-name" required placeholder="যেমন: Wallora"/></div>
     <div class="field"><label>এক লাইনের পরিচয় (tagline)</label><input id="i-tagline" placeholder="সংক্ষিপ্ত বর্ণনা"/></div>
     <div class="field"><label>বিবরণ</label><textarea id="i-desc" placeholder="বিস্তারিত বিবরণ…"></textarea></div>
@@ -337,8 +338,8 @@ $("item-rows").addEventListener("click", async e=>{
 
 /* আইটেম মডাল + আপলোড */
 const imodal=$("item-modal");
-function fillItemTypeSelect(){ $("i-category").innerHTML=ITEM_TYPES.map(x=>`<option value="${x}">${esc(t(x))}</option>`).join("")+`<option value="অন্যান্য">${esc(t("অন্যান্য"))}</option>`; }
-function toggleTypeGroups(){ const c=$("i-category").value; $("grp-book").style.display=c==="বইয়ের কপি"?"":"none"; $("grp-ext").style.display=c==="পাইথন এক্সটেনশন"?"":"none"; }
+function fillItemTypeSelect(){ $("i-category").innerHTML=ITEM_TYPES.map(x=>`<option value="${x}">${esc(t(x))}</option>`).join("")+`<option value="অন্যান্য">${esc(t("অন্যান্য"))}</option>`+`<option value="__custom__">${esc(t("কাস্টম"))}</option>`; }
+function toggleTypeGroups(){ const c=$("i-category").value; $("grp-book").style.display=c==="বইয়ের কপি"?"":"none"; $("grp-ext").style.display=c==="পাইথন এক্সটেনশন"?"":"none"; const f=$("fld-cat-custom"); if(f) f.style.display=c==="__custom__"?"":"none"; }
 function fillAccents(cur){ $("i-accents").innerHTML=PALETTE.map(p=>`<span class="sw-acc ${p===cur?"on":""}" data-pal="${p}" style="background:${p}"></span>`).join("")+`<span class="sw-acc ${cur&&!PALETTE.includes(cur)?"on":""}" id="acc-custom" style="background:${esc(cur||PALETTE[0])}" title="নিজের রঙ"><input type="color" id="acc-color" value="${/^#/.test(cur||"")?cur:"#8b5cf6"}"></span>`;
   document.querySelectorAll("#i-accents [data-pal]").forEach(s=>s.addEventListener("click",()=>{ document.querySelectorAll("#i-accents .sw-acc").forEach(x=>x.classList.remove("on")); s.classList.add("on"); }));
   const c=$("acc-color"); if(c) c.addEventListener("input",()=>{ document.querySelectorAll("#i-accents .sw-acc").forEach(x=>x.classList.remove("on")); $("acc-custom").classList.add("on"); $("acc-custom").style.background=c.value; $("i-image").value=""; updateImagePreview(); });
@@ -348,14 +349,14 @@ function openItemModal(id){
   if(!S.stores.length){ alert(t("প্রথমে একটি স্টোর তৈরি করুন।")); return; }
   const it=id?itemById(id):null; $("im-title").textContent=it?"আইটেম সম্পাদনা":"নতুন আইটেম";
   $("item-store-select").value=it?it.storeId:($("item-store-select").value||S.stores[0].id); $("i-store").innerHTML=$("item-store-select").innerHTML; $("i-store").value=it?it.storeId:S.stores[0].id;
-  $("i-id").value=it?it.id:""; $("i-name").value=it?it.name:""; $("i-tagline").value=it?it.tagline||"":""; $("i-desc").value=it?it.description||"":""; fillItemTypeSelect(); $("i-category").value=it?it.category||"অন্যান্য":"অ্যাপ"; toggleTypeGroups();
+  $("i-id").value=it?it.id:""; $("i-name").value=it?it.name:""; $("i-tagline").value=it?it.tagline||"":""; $("i-desc").value=it?it.description||"":""; fillItemTypeSelect(); const knownCat=it&&it.category?ITEM_TYPES.includes(it.category):false; if(it&&it.category&&!knownCat){ $("i-category").value="__custom__"; $("i-category-custom").value=it.category; } else { $("i-category").value=it?(it.category||"অন্যান্য"):"অ্যাপ"; $("i-category-custom").value=""; } toggleTypeGroups();
   $("i-tags").value=it?(it.tags||[]).join(", "):""; $("i-author").value=it?it.author||"":""; $("i-year").value=it?it.year||"":""; $("i-install").value=it?it.installSteps||"":"";
   $("i-source").value=it&&it.links?it.links.source||"":""; $("i-download").value=it&&it.links?it.links.download||"":""; $("i-readme").value=it?it.readme||"":"";
   $("i-image").value=it?it.coverImage||"":""; fillAccents(it?it.coverColor||PALETTE[0]:PALETTE[0]); updateImagePreview();
   $("i-published").classList.toggle("on",it?it.published:true); $("i-featured").classList.toggle("on",it?!!it.featured:false);
   imodal.showModal();
 }
-$("new-item-btn").addEventListener("click",()=>openItemModal("")); $("i-category").addEventListener("change",toggleTypeGroups); $("i-image").addEventListener("input",updateImagePreview);
+$("new-item-btn").addEventListener("click",()=>openItemModal("")); $("i-category").addEventListener("change",()=>{ toggleTypeGroups(); if($("i-category").value==="__custom__"){ const ci=$("i-category-custom"); if(ci) ci.focus(); } }); $("i-image").addEventListener("input",updateImagePreview);
 $("im-x").addEventListener("click",()=>imodal.close()); $("im-cancel").addEventListener("click",()=>imodal.close());
 $("i-published").addEventListener("click",()=>$("i-published").classList.toggle("on")); $("i-featured").addEventListener("click",()=>$("i-featured").classList.toggle("on"));
 $("im-save").addEventListener("click", async e=>{
@@ -363,7 +364,7 @@ $("im-save").addEventListener("click", async e=>{
   const accOn=document.querySelector("#i-accents .sw-acc.on"); const color=accOn?(accOn.dataset.pal||accOn.style.background):PALETTE[0];
   const existing=$("i-id").value?itemById($("i-id").value):null;
   const obj={ id:$("i-id").value||uid(), storeId:$("i-store").value, name:$("i-name").value.trim(), tagline:$("i-tagline").value.trim(), description:$("i-desc").value.trim(),
-    category:$("i-category").value, tags:splitList($("i-tags").value), coverColor:color, coverImage:$("i-image").value.trim(),
+    category: ($("i-category").value==="__custom__" ? ($("i-category-custom").value.trim()||"অন্যান্য") : $("i-category").value), tags:splitList($("i-tags").value), coverColor:color, coverImage:$("i-image").value.trim(),
     links:{source:$("i-source").value.trim(), download:$("i-download").value.trim()},
     readme:$("i-readme").value, author:$("i-author").value.trim(), year:$("i-year").value.trim(), installSteps:$("i-install").value,
     published:$("i-published").classList.contains("on"), featured:$("i-featured").classList.contains("on"),

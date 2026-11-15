@@ -316,6 +316,13 @@ const SHARED_CSS = String.raw`
     .drift-track{transform:none!important} .boot .ring{animation:none}
     .dlr-sq{animation:none!important;stroke-dashoffset:0!important} .dlr-logo{animation:none!important;transform:none!important;opacity:1!important}
   }
+  /* ম্যানুয়াল টগল: .reduce-motion ক্লাস OS-এর media query-এর সমমান আচরণ করে */
+  html.reduce-motion{scroll-behavior:auto}
+  .reduce-motion .reveal{opacity:1!important;transform:none!important;transition:none!important}
+  .reduce-motion .card:hover,.reduce-motion .btn:hover,.reduce-motion .social a:hover,.reduce-motion .back:hover{transform:none}
+  .reduce-motion *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  .reduce-motion .drift-track{transform:none!important} .reduce-motion .boot .ring{animation:none}
+  .reduce-motion .dlr-sq{animation:none!important;stroke-dashoffset:0!important} .reduce-motion .dlr-logo{animation:none!important;transform:none!important;opacity:1!important}
 `;
 document.head.appendChild((function () { const st = document.createElement("style"); st.id = "shared-css"; st.textContent = SHARED_CSS; return st; })());
 
@@ -363,6 +370,25 @@ const PALETTE = [
   "linear-gradient(120deg,#b45309,#f59e0b 60%,#fde68a)",
   "linear-gradient(120deg,#1e1b4b,#4338ca 55%,#7c3aed)",
   "linear-gradient(120deg,#0f172a,#334155 55%,#0891b2)",
+  /* --- নতুন ১৮টি graphical gradient (মোট ২৪) — আগের ৬টি অক্ষুণ্ণ, শুধু append --- */
+  "linear-gradient(120deg,#be123c,#db2777 55%,#a855f7)",
+  "linear-gradient(120deg,#0f766e,#10b981 55%,#84cc16)",
+  "linear-gradient(120deg,#0284c7,#3b82f6 50%,#6366f1)",
+  "linear-gradient(120deg,#d97706,#f97316 55%,#ef4444)",
+  "linear-gradient(120deg,#c026d3,#9333ea 55%,#4f46e5)",
+  "linear-gradient(120deg,#06b6d4,#0ea5e9 55%,#2563eb)",
+  "linear-gradient(120deg,#059669,#14b8a6 55%,#06b6d4)",
+  "linear-gradient(120deg,#7c3aed,#a21caf 60%,#d946ef)",
+  "linear-gradient(120deg,#4338ca,#2563eb 55%,#22d3ee)",
+  "linear-gradient(120deg,#ec4899,#f43f5e 55%,#dc2626)",
+  "linear-gradient(120deg,#65a30d,#16a34a 55%,#059669)",
+  "linear-gradient(120deg,#ea580c,#f59e0b 55%,#facc15)",
+  "linear-gradient(120deg,#1e293b,#4f46e5 60%,#8b5cf6)",
+  "linear-gradient(120deg,#0c4a6e,#0891b2 55%,#2dd4bf)",
+  "linear-gradient(120deg,#7f1d1d,#be185d 55%,#7e22ce)",
+  "linear-gradient(120deg,#b45309,#d97706 50%,#fbbf24)",
+  "linear-gradient(120deg,#1e1b4b,#6366f1 60%,#a5b4fc)",
+  "linear-gradient(120deg,#fb7185,#f97316 55%,#fcd34d)",
 ];
 
 /* =========================================================
@@ -475,6 +501,7 @@ const I18N = {
     "এই স্টোরে এখনো আইটেম নেই। “+ নতুন আইটেম” চেপে যোগ করুন।":"No items in this store yet. Press “+ New item” to add one.",
     "“{name}” আইটেমটি মুছে ফেলবেন?":"Delete the item “{name}”?",
     "আইটেম সম্পাদনা":"Edit item", "নতুন আইটেম":"New item", "ধরন (type)":"Category",
+    "কাস্টম টাইপের নাম":"Custom type name", "যেমন: গেম, টেমপ্লেট, UI কিট…":"e.g. Games, Templates, UI kits…",
     "যেমন: Wallora":"e.g. Wallora", "এক লাইনের পরিচয় (tagline)":"One-line tagline", "সংক্ষিপ্ত বর্ণনা":"Short description",
     "বিস্তারিত বিবরণ…":"Detailed description…", "ট্যাগ (কমা দিয়ে)":"Tags (comma separated)",
     "বইয়ের কপি":"Book copy", "লেখকের নাম":"Author name", "এক্সটেনশন":"Extension", "কীভাবে ইনস্টল করবেন…":"How to install it…",
@@ -689,7 +716,7 @@ function applyAutoLang(){
 /* =========================================================
    DB লেয়ার — সব পড়া-লেখা এখান দিয়ে। adapter বদলেই Firebase।
    ========================================================= */
-const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let reduce = (function(){ try{ const s=localStorage.getItem("deeo.motion"); if(s==="reduce") return true; if(s==="full") return false; }catch(e){} return matchMedia("(prefers-reduced-motion: reduce)").matches; })();
 const $ = id => document.getElementById(id);
 /* ---- loader.svg-ভিত্তিক ইনলাইন লোডার (boot + ছোট) ----
    assets/loader.svg-এর আর্টওয়ার্কই ইনলাইন করা হয় (gradient/blur একই), তবে ক্লাস ও ID
@@ -873,6 +900,8 @@ const Activity = {
   },
   async logDownload(name,url){ if(!Auth.user) return; const d=await this.load(); d.downloads.unshift({name, url, ts:Date.now()}); d.downloads=d.downloads.slice(0,200); await this.save(); },
   async logMessage(name,body){ if(!Auth.user) return; const d=await this.load(); d.messages.unshift({name, body, ts:Date.now()}); d.messages=d.messages.slice(0,200); await this.save(); },
+  async toggleSave(item){ if(!Auth.user) return null; const d=await this.load(); const i=d.saved.findIndex(x=>x.id===item.id); let saved; if(i>=0){ d.saved.splice(i,1); saved=false; } else { d.saved.unshift({ id:item.id, name:item.name, storeId:item.storeId, ts:Date.now() }); saved=true; } d.saved=d.saved.slice(0,200); await this.save(); return saved; },
+  async isSaved(id){ if(!Auth.user) return false; const d=await this.load(); return (d.saved||[]).some(x=>x.id===id); },
   async list(){ return await this.load(); },
   async clear(){ if(!Auth.user) return; this._cache={downloads:[],saved:[],messages:[]}; await this.save(); },
 };
@@ -923,7 +952,15 @@ function itemCardHtml(it,i){
 /* ---- অ্যানিমেশন: fade/reveal + drift + mosaic ---- */
 let io, driftSet=new Set(), driftRAF=0;
 /* মালিক প্যানেলে (window.DEEO_ADMIN) মোজাইক/ড্রিফট/স্ট্যাগার চলে না */
-const animOff = reduce || !!window.DEEO_ADMIN;
+let animOff = reduce || !!window.DEEO_ADMIN;
+/* রিডিউসড-মোশন টগল — state + CSS ক্লাস + localStorage একসাথে; JS ইঞ্জিনও সাথে সাথে থামে */
+function setMotion(reduced){
+  reduce = !!reduced; animOff = reduce || !!window.DEEO_ADMIN;
+  document.documentElement.classList.toggle("reduce-motion", reduce);
+  try{ localStorage.setItem("deeo.motion", reduce?"reduce":"full"); }catch(e){}
+  if(reduce){ if(driftRAF){ cancelAnimationFrame(driftRAF); driftRAF=0; } document.querySelectorAll("canvas.mosaic").forEach(c=>c.remove()); mxReset(); }
+}
+document.documentElement.classList.toggle("reduce-motion", reduce);
 /* ড্রিফট লুপ demand-driven — স্ক্রল বা অবস্থান বদলাচ্ছে তখনই, স্থির হলে বন্ধ */
 function driftStep(){
   driftRAF = 0; let moving = false;
