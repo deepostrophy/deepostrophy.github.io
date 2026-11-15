@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /admin.html
-
-Sitemap: https://deepostrophy.github.io/sitemap.xml
