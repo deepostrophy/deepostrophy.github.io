@@ -1,0 +1,5 @@
+# DEEPostrophy — fully static site (no build step).
+# Connecting Netlify to this GitHub repo publishes the root folder as-is.
+[build]
+  publish = "."
+  command = ""

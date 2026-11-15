@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <!-- Colorful Cyber Gradient -->
+    <linearGradient id="deepoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+
+    <!-- Soft Neon Glow Filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <style>
+      .main-square {
+        fill: none;
+        stroke: url(#deepoGrad);
+        stroke-width: 4.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        /* Perimeter of 100x100 square is 400px */
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+        transform-origin: 100px 100px;
+        /* Static square with stroke drawing animation */
+        animation: drawSquare 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+      }
+
+      .center-logo {
+        fill: #00A8FF;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-weight: 800;
+        font-size: 46px;
+        letter-spacing: -2px;
+        text-anchor: middle;
+        dominant-baseline: central;
+        transform-origin: 100px 104px;
+        animation: pulseLogo 2.4s ease-in-out infinite;
+      }
+
+      .apostrophe {
+        fill: #0082FF;
+      }
+
+      @keyframes drawSquare {
+        0% {
+          stroke-dashoffset: 400;
+        }
+        50% {
+          stroke-dashoffset: 0;
+        }
+        100% {
+          stroke-dashoffset: -400;
+        }
+      }
+
+      @keyframes pulseLogo {
+        0%, 100% { 
+          transform: scale(0.95); 
+          opacity: 0.85; 
+        }
+        50% { 
+          transform: scale(1.06); 
+          opacity: 1; 
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- Static Square with Stroke Animation -->
+  <rect class="main-square" x="50" y="50" width="100" height="100" rx="12" filter="url(#glow)" />
+
+  <!-- Center Brand Mark: D' (Blue) -->
+  <text class="center-logo" x="102" y="108" filter="url(#glow)">
+    D<tspan class="apostrophe">'</tspan>
+  </text>
+</svg>
