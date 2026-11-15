@@ -57,6 +57,13 @@ service cloud.firestore {
       allow read, update, delete: if isOwner();
     }
 
+    // ---- Users (দর্শকের নিজের Activity: ডাউনলোড/সেভ/মেসেজ হিস্ট্রি) ----
+    // শুধু সেই ব্যবহারকারী নিজের users/{uid} ডকুমেন্ট পড়তে ও লিখতে পারবে।
+    // মালিকের ইমেইল এখানে কোনো অতিরিক্ত অধিকার দেয় না।
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
     // ---- বাকি সব কিছু বন্ধ ----
     match /{document=**} {
       allow read, write: if false;

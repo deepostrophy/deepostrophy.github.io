@@ -255,11 +255,58 @@ const SHARED_CSS = String.raw`
 
   .boot{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:var(--bg);transition:opacity .4s} .boot.hide{opacity:0;pointer-events:none}
   .boot .ring{width:46px;height:46px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--a2);animation:spin .8s linear infinite} @keyframes spin{to{transform:rotate(360deg)}}
+  /* loader.svg-ভিত্তিক ইনলাইন লোডার (boot + ছোট ইনলাইন) — অ্যানিমেশন CSS এখানে, যাতে reduced-motion নিয়ন্ত্রণ করা যায় */
+  .boot-inner{display:grid;place-items:center}
+  .dlr{display:block;line-height:0}
+  .dlr-sq{fill:none;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:400;stroke-dashoffset:400;transform-origin:100px 100px;animation:drawSquare 2.4s cubic-bezier(.65,0,.35,1) infinite}
+  .dlr-logo{fill:#00A8FF;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-weight:800;font-size:46px;letter-spacing:-2px;text-anchor:middle;dominant-baseline:central;transform-origin:100px 104px;animation:pulseLogo 2.4s ease-in-out infinite}
+  .dlr-ap{fill:#0082FF}
+  @keyframes drawSquare{0%{stroke-dashoffset:400}50%{stroke-dashoffset:0}100%{stroke-dashoffset:-400}}
+  @keyframes pulseLogo{0%,100%{transform:scale(.95);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+  .ldr-inline{display:inline-block;vertical-align:middle;line-height:0}
 
   /* টেক্সট মোজাইক */
   .mx{display:inline-block;white-space:pre-wrap} .mx .c{display:inline-block;will-change:transform,opacity}
 
   .reveal{opacity:0;transform:translateY(26px);transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease);transition-delay:calc(var(--i,0)*70ms)} .reveal.in{opacity:1;transform:none}
+
+  /* --- Welcome overlay --- */
+  .welcome{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;text-align:center;padding:24px;
+    background:radial-gradient(900px 600px at 50% 30%,rgba(139,92,246,.22),transparent 60%),linear-gradient(180deg,var(--bg),var(--bg-2));
+    opacity:1;transition:opacity .5s var(--ease)}
+  .welcome.gone{opacity:0;pointer-events:none}
+  .welcome .wtitle{font-size:clamp(30px,7vw,64px);font-weight:800;letter-spacing:-1px;margin:0 0 6px}
+  .welcome .wtitle .grad{background:linear-gradient(96deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .welcome .wsub{color:var(--muted);font-size:16px;margin:0 auto 26px;max-width:520px}
+  .glow-btn{position:relative;border:none;cursor:pointer;color:#0a0a12;font-weight:800;font-size:17px;padding:15px 34px;border-radius:16px;
+    background:linear-gradient(96deg,var(--a1),var(--a2));animation:glowPulse 2.4s ease-in-out infinite}
+  @keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(139,92,246,.45),0 16px 40px -16px rgba(34,211,238,.6)}50%{box-shadow:0 0 34px 6px rgba(139,92,246,.35),0 16px 40px -16px rgba(34,211,238,.7)}}
+  .welcome .wskip{display:block;margin:18px auto 0;color:var(--muted);background:none;border:none;cursor:pointer;font-size:14px;text-decoration:underline}
+
+  /* --- Navbar sign-in + avatar --- */
+  .nav-signin{font-weight:700;font-size:13.5px;color:var(--ink);background:transparent;border:1px solid var(--stroke);border-radius:11px;padding:9px 14px;cursor:pointer;transition:.2s var(--ease)}
+  .nav-signin:hover{border-color:var(--a2);color:#fff}
+  .nav-avatar{width:38px;height:38px;border-radius:50%;border:1px solid var(--stroke-2);cursor:pointer;font-weight:800;font-size:15px;color:#0a0a12;
+    background:linear-gradient(120deg,var(--a1),var(--a2));display:grid;place-items:center;padding:0}
+
+  /* --- Auth modal --- */
+  .auth-tabs{display:flex;gap:8px;margin-bottom:16px}
+  .auth-tabs .tab.on{color:#0a0a12;background:linear-gradient(96deg,var(--a1),var(--a2));border-color:transparent}
+  .linkbtn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;text-decoration:underline;padding:0}
+  .linkbtn:hover{color:var(--ink)}
+
+  /* --- Account --- */
+  .acct-grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:22px}
+  .acct-card{border:1px solid var(--stroke);border-radius:18px;background:rgba(255,255,255,.04);padding:20px}
+  .acct-card h3{margin:0 0 4px;font-size:18px} .acct-card .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+  .acct-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:9px 0;border-bottom:1px dashed rgba(255,255,255,.08);font-size:14px}
+  .acct-row:last-child{border-bottom:none} .acct-row b{color:var(--muted);font-weight:600}
+  .acct-big{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .acct-big .av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:22px;color:#0a0a12;background:linear-gradient(120deg,var(--a1),var(--a2))}
+  .verify-banner{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid rgba(255,210,122,.35);background:rgba(255,210,122,.08);color:#ffd27a;border-radius:14px;padding:12px 16px;margin-top:18px}
+  .act-list{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow:auto}
+  .act-item{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:13.5px;padding:8px 10px;border:1px solid var(--stroke);border-radius:10px}
+  .act-item .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .act-item .dt{color:var(--muted);flex:none}
 
   @media (prefers-reduced-motion: reduce){
     html{scroll-behavior:auto}
@@ -267,6 +314,7 @@ const SHARED_CSS = String.raw`
     .card:hover,.btn:hover,.social a:hover,.back:hover{transform:none}
     *{animation-duration:.001ms!important;transition-duration:.001ms!important}
     .drift-track{transform:none!important} .boot .ring{animation:none}
+    .dlr-sq{animation:none!important;stroke-dashoffset:0!important} .dlr-logo{animation:none!important;transform:none!important;opacity:1!important}
   }
 `;
 document.head.appendChild((function () { const st = document.createElement("style"); st.id = "shared-css"; st.textContent = SHARED_CSS; return st; })());
@@ -297,13 +345,17 @@ const KINDS = {
   apps:{label:"অ্যাপ", icon:"📱", c:["#4338ca","#8b5cf6"]},
   "ai-tools":{label:"AI টুলস", icon:"✨", c:["#6d28d9","#22d3ee"]},
   arts:{label:"কালারফুল আর্টস", icon:"🎨", c:["#7c3aed","#db2777"]},
+  wallpapers:{label:"ওয়ালপেপার", icon:"🖼️", c:["#0ea5e9","#6366f1"]},
+  images:{label:"ছবি", icon:"📷", c:["#14b8a6","#0ea5e9"]},
+  songs:{label:"গান", icon:"🎵", c:["#db2777","#8b5cf6"]},
+  movies:{label:"মুভি", icon:"🎬", c:["#f43f5e","#f59e0b"]},
   "py-ext":{label:"পাইথন এক্সটেনশন", icon:"🧩", c:["#0f766e","#a3e635"]},
   books:{label:"বইয়ের কপি", icon:"📚", c:["#b45309","#f59e0b"]},
   files:{label:"ফাইল সংরক্ষণ", icon:"🗂️", c:["#0e7490","#22d3ee"]},
   links:{label:"লিংক", icon:"🔗", c:["#1e1b4b","#7c3aed"]},
   custom:{label:"কাস্টম", icon:"🏷️", c:["#334155","#0891b2"]},
 };
-const ITEM_TYPES = ["অ্যাপ","AI টুল","আর্ট","পাইথন এক্সটেনশন","বইয়ের কপি","ফাইল","লিংক","অন্যান্য"];
+const ITEM_TYPES = ["অ্যাপ","AI টুল","আর্ট","ওয়ালপেপার","ছবি","গান","মুভি","পাইথন এক্সটেনশন","বইয়ের কপি","ফাইল","লিংক","অন্যান্য"];
 const PALETTE = [
   "linear-gradient(120deg,#6d28d9,#8b5cf6 45%,#22d3ee)",
   "linear-gradient(120deg,#7c3aed,#db2777 60%,#f59e0b)",
@@ -470,28 +522,7 @@ const I18N = {
     /* --- kind / type লেবেল --- */
     "অ্যাপ":"App", "AI টুলস":"AI tools", "AI টুল":"AI tool", "কালারফুল আর্টস":"Colorful arts", "আর্ট":"Art",
     "পাইথন এক্সটেনশন":"Python extension", "ফাইল সংরক্ষণ":"File storage", "ফাইল":"File", "কাস্টম":"Custom", "অন্যান্য":"Other",
-    /* --- গিটহাব লোকাল-আপলোড (Settings + আইটেম মডাল) --- */
-    "গিটহাব আপলোড (লোকাল → GitHub)":"GitHub upload (local → GitHub)",
-    "PC থেকে ফাইল বেছে নিয়ে সরাসরি আপনার GitHub রিপোতে আপলোড করুন — ডাউনলোড, সোর্স ও কভার লিংক অটো-ফিল হবে। টোকেন কেবল আপনার এই ব্রাউজারে (localStorage) থাকে।":"Pick a file from your PC and upload it straight to your GitHub repo — the download, source and cover links fill in automatically. The token stays only in this browser (localStorage).",
-    "Owner/Repo বা রিপোর লিংক":"Owner/repo or repo link",
-    "যেমন: arafath-rifath/deepostrophy-assets":"e.g. arafath-rifath/deepostrophy-assets",
-    "GitHub টোকেন (classic: repo স্কোপ, বা fine-grained: Contents: Read and write)":"GitHub token (classic: repo scope, or fine-grained: Contents: Read and write)",
-    "এখানে পেস্ট করুন (শুধু এই ব্রাউজারে জমা)":"Paste here (stored only in this browser)",
-    "টোকেন যাচাই":"Verify token", "সেভ করুন":"Save", "মুছে ফেলুন":"Clear", "মুছে ফেলা হয়েছে।":"Cleared.", "টোকেন যাচাই হচ্ছে…":"Verifying token…",
-    "টোকেন সঠিক ✅":"Token valid ✅", "রিপো লেখার অনুমতি ✅":"Repo writable ✅",
-    "টোকেন সঠিক নয়।":"Token is invalid.", "রিপো পাওয়া যায়নি বা লেখার অনুমতি নেই।":"Repo not found or not writable.",
-    "প্রথমে টোকেন ও রিপো দিন।":"Enter the token and repo first.",
-    "লিংক":"Link", "GitHub-এ আপলোড":"Upload to GitHub",
-    "ফাইল বেছে নিন (PC থেকে)":"Choose a file (from PC)",
-    "আপলোড করলেই ডাউনলোড ও সোর্স লিংক অটো-ফিল হবে। বড় ফাইলে “লিংক” ট্যাবে সরাসরি লিংক দিন।":"Uploading auto-fills the download and source links. For large files, paste a direct link under the “Link” tab.",
-    "কোনো ফাইল বাছাই হয়নি":"No file chosen",
-    "GitHub-এ আপলোড ⬆":"Upload to GitHub ⬆", "ছবি আপলোড ⬆":"Upload image ⬆",
-    "ফাইল আপলোড হচ্ছে…":"Uploading file…", "কভার ছবি আপলোড হচ্ছে…":"Uploading cover image…",
-    "প্রথমে একটি ফাইল বেছে নিন।":"Choose a file first.",
-    "প্রথমে Settings → গিটহাব আপলোড-এ টোকেন ও রিপো দিন।":"Set the token and repo under Settings → GitHub upload first.",
-    "কভার আপলোড হয়েছে — লিংক বসে গেছে ✅":"Cover uploaded — link filled ✅",
-    "আপলোড হয়েছে ✅ — ডাউনলোড ও সোর্স লিংক অটো-ফিল হয়েছে":"Uploaded ✅ — download and source links auto-filled",
-    "কভার:":"Cover:", "GitHub আপলোড ব্যর্থ: ":"GitHub upload failed: ",
+    "ওয়ালপেপার":"Wallpaper", "ছবি":"Image", "গান":"Song", "মুভি":"Movie",
     /* --- হিরো / ওয়েলকাম --- */
     "Portfolio · App Store":"Portfolio · App Store",
     "ওয়েলকাম টু":"Welcome to",
@@ -660,6 +691,43 @@ function applyAutoLang(){
    ========================================================= */
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $ = id => document.getElementById(id);
+/* ---- loader.svg-ভিত্তিক ইনলাইন লোডার (boot + ছোট) ----
+   assets/loader.svg-এর আর্টওয়ার্কই ইনলাইন করা হয় (gradient/blur একই), তবে ক্লাস ও ID
+   নেমস্পেস করা যাতে একই পেজে একাধিক লোডার সংঘর্ষ না করে; অ্যানিমেশন CSS SHARED_CSS-এ,
+   ফলে prefers-reduced-motion-এ স্থির ছবি হিসেবে দেখানো যায়। */
+let __dlrUid = 0;
+function loaderSvg(size, uid){
+  const s = Math.max(16, Math.round(size||40)), g = "deepoGrad-"+uid, f = "glow-"+uid;
+  return '<svg class="dlr" viewBox="0 0 200 200" width="'+s+'" height="'+s+'" aria-hidden="true" focusable="false">'
+    + '<defs>'
+    + '<linearGradient id="'+g+'" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38BDF8"/><stop offset="50%" stop-color="#818CF8"/><stop offset="100%" stop-color="#C084FC"/></linearGradient>'
+    + '<filter id="'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3.5" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>'
+    + '</defs>'
+    + '<rect class="dlr-sq" x="50" y="50" width="100" height="100" rx="12" stroke="url(#'+g+')" filter="url(#'+f+')"/>'
+    + '<text class="dlr-logo" x="102" y="108" filter="url(#'+f+')">D<tspan class="dlr-ap">\'</tspan></text>'
+    + '</svg>';
+}
+/* পুরো-স্ক্রিন বুট লোডার: #boot-এ loader.svg বসায়; লোড শেষে .hide দিয়ে মিলিয়ে যায় */
+function renderBootLoader(){ const b=$("boot"); if(b) b.innerHTML='<div class="boot-inner">'+loaderSvg(96,"boot")+'</div>'; }
+/* ছোট ইনলাইন লোডার (≈৪০px): কোনো কন্টেইনারে বসানো/সরানো যায় */
+function showLoader(el, size){
+  if(!el) return null;
+  const px = Math.round(size||40), host = document.createElement("span");
+  host.className = "ldr-inline"; host.style.width = px+"px"; host.style.height = px+"px";
+  host.innerHTML = loaderSvg(px, "x"+(++__dlrUid));
+  el.innerHTML = ""; el.appendChild(host); el.style.display = "";
+  return host;
+}
+function hideLoader(el){ if(el){ el.innerHTML=""; el.style.display="none"; } }
+/* বাটনে ক্লিক-ভিত্তিক সেভ: চলাকালীন বাটনের জায়গায় ছোট লোডার, শেষে আগের অবস্থা ফিরিয়ে আনে */
+async function withLoader(btn, fn){
+  if(!btn) return await fn();
+  const orig = btn.innerHTML, wasDisabled = btn.disabled;
+  btn.disabled = true; btn.style.opacity = ".75";
+  btn.innerHTML = '<span class="ldr-inline" style="width:22px;height:22px">'+loaderSvg(22,"b"+(++__dlrUid))+'</span>';
+  try { return await fn(); }
+  finally { btn.innerHTML = orig; btn.disabled = wasDisabled; btn.style.opacity = ""; }
+}
 const esc = s => (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid = () => "x"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
 const isValidUrl = s => typeof s==="string" && /^(https?:\/\/|mailto:|data:)/i.test(s.trim());
@@ -738,66 +806,16 @@ const DB = {
   exportJson(){ return S.raw ? JSON.stringify(S.raw, null, 2) : "{}"; },
 };
 
-/* =========================================================
-   লোকাল ফাইল → GitHub আপলোড ইঞ্জিন
-   PC থেকে ফাইল বেছে নিলে GitHub Contents API-তে commit হয়, ফিরে আসে
-   ডাউনলোড (media) + সোর্স (blob পেজ) + কাঁচা (raw) লিংক — যা অটো-ফিল হয়।
-   টোকেন ও রিপো শুধু এই ব্রাউজারের localStorage-এ থাকে; কেবল api.github.com-এ যায়।
-   ========================================================= */
-const slug = s => (s||"").toString().toLowerCase().trim().replace(/[^\p{L}\p{N}.]+/gu,"-").replace(/^-+|-+$/g,"").slice(0,60) || "item";
-const humanSize = n => { n=+n||0; if(n<1024) return n+" B"; if(n<1048576) return (n/1024).toFixed(0)+" KB"; return (n/1048576).toFixed(1)+" MB"; };
-const stripExt = name => { const i=(name||"").lastIndexOf("."); return i>0 ? name.slice(0,i) : (name||""); };
-const ghHeaders = withJson => { const st=GH.settings(); const h={ Accept:"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" }; if(withJson) h["Content-Type"]="application/json"; if(st.token) h["Authorization"]="Bearer "+st.token; return h; };
-
-const GH = {
-  _TOKEN_KEY:"deeo.github.token",
-  _REPO_KEY:"deeo.github.repo",
-  settings(){
-    let repo=""; try{ repo=localStorage.getItem(this._REPO_KEY)||""; }catch(e){}
-    let token=""; try{ token=atob(localStorage.getItem(this._TOKEN_KEY)||""); }catch(e){ token=""; }
-    return { token, repo };
-  },
-  configured(){ const s=this.settings(); return !!(s.token && s.repo); },
-  save(cfg){ try{ if(cfg && cfg.token) localStorage.setItem(this._TOKEN_KEY, btoa(cfg.token)); if(cfg && cfg.repo!==undefined) localStorage.setItem(this._REPO_KEY, (cfg.repo||"").trim()); }catch(e){} },
-  clear(){ try{ localStorage.removeItem(this._TOKEN_KEY); localStorage.removeItem(this._REPO_KEY); }catch(e){} },
-  parseRepo(repo){ const s=(repo||"").trim().replace(/\.git$/,""); const m=s.match(/(?:github\.com[\/:])?([\w.-]+)\/([\w.-]+)/); return m?{owner:m[1],name:m[2]}:null; },
-  async currentBranch(o,r){ try{ const res=await fetch("https://api.github.com/repos/"+o+"/"+r,{headers:ghHeaders(false)}); if(res.ok){ const j=await res.json(); if(j&&j.default_branch) return j.default_branch; } }catch(e){} return "main"; },
-  async authedUser(){ const res=await fetch("https://api.github.com/user",{headers:ghHeaders(false)}); if(res.status===401) throw new Error("টোকেন সঠিক নয় বা মেয়াদ শেষ।"); if(!res.ok) throw new Error("HTTP "+res.status); return res.json(); },
-  /* একটি ফাইল রিপোতে commit করে — {downloadUrl, rawUrl, pageUrl, path, name, size} */
-  async upload(file, folder, label){
-    const st=this.settings(); const pr=this.parseRepo(st.repo);
-    if(!pr) throw new Error("রিপো ঠিক নেই — Settings → গিটহাব আপলোড-এ owner/repo দেখুন।");
-    if(!st.token) throw new Error("GitHub টোকেন দেওয়া নেই।");
-    if(file.size > 100*1024*1024) throw new Error("ফাইল ১০০MB-এর বড় — GitHub Contents API এত বড় নেয় না; “লিংক” ট্যাবে Release লিংক দিন।");
-    const buf=await file.arrayBuffer(); const bin=new Uint8Array(buf); let b64=""; const CH=0x8000;
-    for(let i=0;i<bin.length;i+=CH){ b64+=String.fromCharCode.apply(null,bin.subarray(i,i+CH)); }
-    b64=btoa(b64);
-    const branch=await this.currentBranch(pr.owner,pr.name);
-    const name=(label?slug(label)+"-":"")+slug(file.name);
-    const path=((folder||"uploads")+"/"+name).replace(/\/+/g,"/");
-    let sha=null;
-    try{ const c=await fetch("https://api.github.com/repos/"+pr.owner+"/"+pr.name+"/contents/"+path+"?ref="+encodeURIComponent(branch),{headers:ghHeaders(false)}); if(c.ok){ const cj=await c.json(); if(cj&&cj.sha) sha=cj.sha; } }catch(e){}
-    const body={ message:"Upload "+name+" via DEEPostrophy", content:b64, branch }; if(sha) body.sha=sha;
-    const res=await fetch("https://api.github.com/repos/"+pr.owner+"/"+pr.name+"/contents/"+path,{ method:"PUT", headers:ghHeaders(true), body:JSON.stringify(body) });
-    if(res.status===401) throw new Error("টোকেন সঠিক নয় — GitHub → Settings → Developer settings → Tokens থেকে নতুন টোকেন নিয়ে Contents: Read and write দিন।");
-    if(res.status===403) throw new Error("টোকেনে এই রিপোতে লেখার অনুমতি নেই (Contents: Read and write) — অথবা রেট-লিমিট।");
-    if(res.status===404) throw new Error("রিপো পাওয়া যায়নি — owner/repo আর টোকেন একই অ্যাকাউন্টের কিনা দেখুন।");
-    if(!res.ok){ let m=""; try{ m=(await res.json()).message||""; }catch(e){} throw new Error("GitHub ত্রুটি (HTTP "+res.status+")"+(m?": "+m:"")); }
-    const j=await res.json(); const c=(j&&j.content)||{};
-    const media="https://media.githubusercontent.com/media/"+pr.owner+"/"+pr.name+"/"+branch+"/"+path;
-    const raw=c.download_url||("https://raw.githubusercontent.com/"+pr.owner+"/"+pr.name+"/"+branch+"/"+path);
-    const html=c.html_url||("https://github.com/"+pr.owner+"/"+pr.name+"/blob/"+branch+"/"+path);
-    return { downloadUrl:media, mediaUrl:media, rawUrl:raw, pageUrl:html, path, name, size:file.size };
-  }
-};
+/* (লোকাল → GitHub আপলোড ইঞ্জিন v6-তে সরানো হয়েছে — ফাইল/ছবি বাইরের লিংক থেকে আসে।) */
 
 /* =========================================================
    Auth লেয়ার — fs: Firebase Auth; ls: লোকাল পাসকোড
    ========================================================= */
 const Auth = {
   user:null,
+  currentUser(){ return this.user; },
   isAdmin(){ if(MODE==="fs"){ const u=this.user; if(!u) return false; const match=(OWNER_EMAIL && u.email===OWNER_EMAIL) || (OWNER_UID && u.uid===OWNER_UID); return !!(match && u.emailVerified); } return !!this.user; },
-  async onChange(cb){ if(MODE==="fs"){ FB.api.onAuthStateChanged(FB.auth, u=>{ this.user=u; cb(); }); } else { cb(); } },
+  async onChange(cb){ if(MODE==="fs"){ FB.api.onAuthStateChanged(FB.auth, u=>{ this.user=u; cb(); }); } else { try{ this.user=JSON.parse(localStorage.getItem("deeo.localuser")||"null"); }catch(e){ this.user=null; } cb(); } },
   async signIn(cred){
     if(MODE==="fs"){ const { signInWithEmailAndPassword } = FB.api; const uc = await signInWithEmailAndPassword(FB.auth, cred.email, cred.pass); this.user = uc.user;
       const match = (OWNER_EMAIL && uc.user.email===OWNER_EMAIL) || (OWNER_UID && uc.user.uid===OWNER_UID);
@@ -814,7 +832,49 @@ const Auth = {
     if(btoa(cred.pass)===saved){ this.user={local:true}; return {ok:true}; }
     return {err:"ভুল পাসকোড।"};
   },
-  async signOut(){ if(MODE==="fs"){ const { signOut }=FB.api; await signOut(FB.auth); } this.user=null; },
+  /* নতুন দর্শক অ্যাকাউন্ট — fs: Firebase; ls: লোকাল pseudo */
+  async signUp(cred){
+    if(MODE==="fs"){
+      const { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } = FB.api;
+      const uc = await createUserWithEmailAndPassword(FB.auth, cred.email, cred.pass);
+      if(cred.name){ try{ await updateProfile(uc.user,{displayName:cred.name}); }catch(e){} }
+      try{ await sendEmailVerification(uc.user); }catch(e){}
+      this.user = uc.user;
+      return {ok:true, needVerify:!uc.user.emailVerified};
+    }
+    if((cred.pass||"").length<4) return {err:"Password must be at least 4 characters."};
+    const u={ local:true, email:cred.email||"", displayName:cred.name||"", emailVerified:true, uid:"local", metadata:{creationTime:new Date().toISOString()} };
+    this.user=u; try{ localStorage.setItem("deeo.localuser", JSON.stringify(u)); }catch(e){}
+    return {ok:true};
+  },
+  async sendVerification(){ if(MODE==="fs"){ const { sendEmailVerification }=FB.api; const u=FB.auth.currentUser; if(u){ try{ await sendEmailVerification(u); }catch(e){} } } },
+  async updateName(name){ if(MODE==="fs"){ const { updateProfile }=FB.api; const u=FB.auth.currentUser; if(u){ await updateProfile(u,{displayName:name}); this.user=u; } } else { const u=this.user||{}; u.displayName=name; this.user=u; try{ localStorage.setItem("deeo.localuser",JSON.stringify(u)); }catch(e){} } },
+  async updatePassword(np){ if(MODE==="fs"){ const { updatePassword }=FB.api; const u=FB.auth.currentUser; if(u) await updatePassword(u,np); } },
+  async updateEmail(ne){ if(MODE==="fs"){ const { updateEmail }=FB.api; const u=FB.auth.currentUser; if(u){ await updateEmail(u,ne); this.user=u; } } },
+  async deleteAccount(){ if(MODE==="fs"){ const { deleteUser }=FB.api; const u=FB.auth.currentUser; if(u) await deleteUser(u); this.user=null; } else { this.user=null; try{ localStorage.removeItem("deeo.localuser"); localStorage.removeItem("deeo.activity"); }catch(e){} } },
+  async signOut(){ if(MODE==="fs"){ const { signOut }=FB.api; await signOut(FB.auth); } this.user=null; try{ localStorage.removeItem("deeo.localuser"); }catch(e){} },
+};
+
+/* =========================================================
+   Activity — দর্শকের নিজের ডাউনলোড/সেভ/মেসেজ হিস্ট্রি (users/{uid})
+   ========================================================= */
+const Activity = {
+  _cache:null,
+  _uid(){ const u=Auth.user; return u ? (MODE==="fs" ? u.uid : "local") : null; },
+  async load(){ const k=this._uid(); if(!k){ this._cache={downloads:[],saved:[],messages:[]}; return this._cache; }
+    if(MODE==="fs"){ const { doc, getDoc }=FB.api; let d={}; try{ const snap=await getDoc(doc(FB.db,"users",k)); if(snap.exists()) d=snap.data()||{}; }catch(e){} this._cache=d; }
+    else { try{ this._cache=JSON.parse(localStorage.getItem("deeo.activity")||"{}"); }catch(e){ this._cache={}; } }
+    this._cache.downloads=this._cache.downloads||[]; this._cache.saved=this._cache.saved||[]; this._cache.messages=this._cache.messages||[];
+    return this._cache;
+  },
+  async save(){ const k=this._uid(); if(!k) return; const data=this._cache||{downloads:[],saved:[],messages:[]};
+    if(MODE==="fs"){ const { doc, setDoc }=FB.api; try{ await setDoc(doc(FB.db,"users",k), data, {merge:true}); }catch(e){} }
+    else { try{ localStorage.setItem("deeo.activity", JSON.stringify(data)); }catch(e){} }
+  },
+  async logDownload(name,url){ if(!Auth.user) return; const d=await this.load(); d.downloads.unshift({name, url, ts:Date.now()}); d.downloads=d.downloads.slice(0,200); await this.save(); },
+  async logMessage(name,body){ if(!Auth.user) return; const d=await this.load(); d.messages.unshift({name, body, ts:Date.now()}); d.messages=d.messages.slice(0,200); await this.save(); },
+  async list(){ return await this.load(); },
+  async clear(){ if(!Auth.user) return; this._cache={downloads:[],saved:[],messages:[]}; await this.save(); },
 };
 
 /* =========================================================
@@ -857,7 +917,7 @@ function itemCardHtml(it,i){
       <div class="langs">${tagsHtml(it.tags)}</div>
       <div class="card-actions"><a class="btn sm primary" href="#item/${it.id}" data-link>খুলুন</a>
         ${src?`<a class="btn sm ghost en" href="${esc(it.links.source)}" target="_blank" rel="noopener">সোর্স</a>`:""}
-        ${dl?`<a class="btn sm ghost" href="${esc(it.links.download)}" target="_blank" rel="noopener">ডাউনলোড</a>`:""}</div></div></article>`;
+        ${dl?`<a class="btn sm ghost" href="${esc(it.links.download)}" target="_blank" rel="noopener" data-download data-name="${esc(it.name)}">ডাউনলোড</a>`:""}</div></div></article>`;
 }
 
 /* ---- অ্যানিমেশন: fade/reveal + drift + mosaic ---- */
