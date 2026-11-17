@@ -16,7 +16,7 @@
 <meta property="og:description" content="ARAFATH-এর ব্যক্তিগত পোর্টফোলিও ও অ্যাপ স্টোর।" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%238b5cf6'/%3E%3Cstop%20offset='1'%20stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='100'%20height='100'%20rx='22'%20fill='%2307070c'/%3E%3Crect%20x='14'%20y='14'%20width='72'%20height='72'%20rx='16'%20fill='url(%23g)'/%3E%3C/svg%3E" />
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -195,6 +195,7 @@
     <div class="grp"><label>কভার</label>
       <div class="field"><label>কভার রঙ</label><div class="accent-swatches" id="i-accents"></div></div>
       <div id="cv-link-rows">
+        <div class="field"><label>কভার ছবি ফাইট (PNG/JPG)</label><input type="file" id="i-image-file" accept="image/png,image/jpeg,image/webp"/><p class="note" style="margin-top:6px">বড় ছবি স্বয়ংক্রিয়ভাবে ছোট/কম্প্রেস করে ডেটাবেসেই বসে যাবে — আলাদা লিংক লাগবে না।</p></div>
         <div class="field" style="margin-bottom:0"><label>কভার ছবির লিংক</label><input id="i-image" placeholder="https://… (ছবির সরাসরি লিংক)"/><span class="img-preview" id="i-image-preview"></span></div>
       </div>
     </div>
@@ -345,6 +346,28 @@ function fillAccents(cur){ $("i-accents").innerHTML=PALETTE.map(p=>`<span class=
   const c=$("acc-color"); if(c) c.addEventListener("input",()=>{ document.querySelectorAll("#i-accents .sw-acc").forEach(x=>x.classList.remove("on")); $("acc-custom").classList.add("on"); $("acc-custom").style.background=c.value; $("i-image").value=""; updateImagePreview(); });
 }
 function updateImagePreview(){ const v=$("i-image").value.trim(); $("i-image-preview").style.background=isValidUrl(v)?`center/cover no-repeat url('${v.replace(/'/g,"%27")}')`:""; }
+/* কভার ছবি ফাইট → ক্যানভাসে রিসাইজ/কম্প্রেস → data URL → i-image (Firestore 1MB লিমিট এড়ানো) */
+function fitCoverFromFile(file){
+  if(!file) return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=1200; let w=img.width, h=img.height;
+      if(w>MAX||h>MAX){ const sc=MAX/Math.max(w,h); w=Math.round(w*sc); h=Math.round(h*sc); }
+      const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+      const ctx=cv.getContext("2d"); ctx.drawImage(img,0,0,w,h);
+      let out; try{ out=cv.toDataURL("image/jpeg",0.82); }catch(err){ out=e.target.result; }
+      if(out.length>1_000_000){ out=cv.toDataURL("image/jpeg",0.6); }
+      $("i-image").value=out; updateImagePreview();
+      const pal=document.querySelector("#i-accents .sw-acc.on"); if(pal) pal.classList.remove("on");
+    };
+    img.onerror=()=>{ alert(t("ছবি পড়া যায়নি।")); };
+    img.src=e.target.result;
+  };
+  rd.onerror=()=>{ alert(t("ফাইল পড়া যায়নি।")); };
+  rd.readAsDataURL(file);
+}
 function openItemModal(id){
   if(!S.stores.length){ alert(t("প্রথমে একটি স্টোর তৈরি করুন।")); return; }
   const it=id?itemById(id):null; $("im-title").textContent=it?"আইটেম সম্পাদনা":"নতুন আইটেম";
@@ -357,6 +380,7 @@ function openItemModal(id){
   imodal.showModal();
 }
 $("new-item-btn").addEventListener("click",()=>openItemModal("")); $("i-category").addEventListener("change",()=>{ toggleTypeGroups(); if($("i-category").value==="__custom__"){ const ci=$("i-category-custom"); if(ci) ci.focus(); } }); $("i-image").addEventListener("input",updateImagePreview);
+$("i-image-file").addEventListener("change",e=>{ const f=e.target.files&&e.target.files[0]; if(f) fitCoverFromFile(f); });
 $("im-x").addEventListener("click",()=>imodal.close()); $("im-cancel").addEventListener("click",()=>imodal.close());
 $("i-published").addEventListener("click",()=>$("i-published").classList.toggle("on")); $("i-featured").addEventListener("click",()=>$("i-featured").classList.toggle("on"));
 $("im-save").addEventListener("click", async e=>{

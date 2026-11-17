@@ -20,7 +20,9 @@
 <meta property="og:url" content="https://deepostrophy-go.netlify.app/" />
 <link rel="canonical" href="https://deepostrophy-go.netlify.app/" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%238b5cf6'/%3E%3Cstop%20offset='1'%20stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='100'%20height='100'%20rx='22'%20fill='%2307070c'/%3E%3Crect%20x='14'%20y='14'%20width='72'%20height='72'%20rx='16'%20fill='url(%23g)'/%3E%3C/svg%3E" />
+<meta property="og:image" content="https://deepostrophy.github.io/assets/logo.png" />
+<meta name="twitter:image" content="https://deepostrophy.github.io/assets/logo.png" />
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -46,7 +48,7 @@
 
 <header class="nav">
   <div class="wrap nav-inner">
-    <div class="brand" data-goto="home"><span class="dot"></span><span class="name en" id="brand-name" data-i18n-keep>DEEPostrophy</span></div>
+    <div class="brand" data-goto="home"><img class="brand-mark" src="assets/logo-monogram.png" alt="DEEPostrophy logo" width="28" height="32"><span class="name en" id="brand-name" data-i18n-keep>DEEPostrophy</span></div>
     <nav class="nav-links" id="navlinks">
       <a href="#home" data-link>হোম</a>
       <a href="#stores" data-link>স্টোর</a>
@@ -368,6 +370,16 @@ function dismissWelcome(){
   try{ localStorage.setItem(WELCOME_KEY,"1"); }catch(e){}
   const w=$("welcome"); if(w){ w.classList.add("gone"); setTimeout(()=>{ w.hidden=true; },520); }
 }
+/* --- Get Started → বুট অ্যানিমেশন (৫ সেকেন্ড, SVG loader) --- */
+function playBootAnimation(ms, done){
+  const b=$("boot"); if(!b){ done&&done(); return; }
+  b.style.zIndex="3000";                                   /* .welcome(z 2000)-এর উপরে */
+  b.innerHTML='<img class="boot-anim" src="assets/boot-animation.svg" alt="DEEPostrophy" draggable="false">';
+  b.classList.remove("hide");
+  const reduceOn=document.documentElement.classList.contains("reduce-motion")||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const dur=reduceOn?Math.min(ms,900):ms;
+  setTimeout(function(){ b.classList.add("hide"); b.style.zIndex=""; done&&done(); }, dur);
+}
 async function submitAuth(e){
   e.preventDefault();
   const email=($("au-email").value||"").trim(), pass=$("au-pass").value||"", name=($("au-name").value||"").trim();
@@ -393,8 +405,8 @@ function initAuthUI(){
   updateAuthUI();
   const si=$("nav-signin"); if(si) si.addEventListener("click",()=>openAuth("login"));
   const av=$("nav-avatar"); if(av) av.addEventListener("click",()=>{ location.hash="#account"; });
-  const st=$("welcome-start"); if(st) st.addEventListener("click",()=>{ dismissWelcome(); openAuth("signup"); });
-  const sk=$("welcome-skip"); if(sk) sk.addEventListener("click",dismissWelcome);
+  const st=$("welcome-start"); if(st) st.addEventListener("click",()=>{ playBootAnimation(5000, ()=>{ dismissWelcome(); openAuth("signup"); }); });   /* নতুন/পুরাতন detect না করেই: Get Started → boot → সাইন-আপ */
+  const sk=$("welcome-skip"); if(sk) sk.addEventListener("click",()=>{ dismissWelcome(); openAuth("login"); });   /* Skip → Welcome back → লগ-ইন */
   const x=$("auth-x"); if(x) x.addEventListener("click",()=>{ closeAuth(); pendingDl=null; });
   const skip=$("auth-skip"); if(skip) skip.addEventListener("click",()=>{ closeAuth(); pendingDl=null; });
   const tl=$("auth-tab-login"); if(tl) tl.addEventListener("click",()=>openAuth("login", noteText()));
@@ -403,6 +415,22 @@ function initAuthUI(){
   document.addEventListener("click", downloadGate);
   maybeWelcome();
 }
+/* --- ভাসমান "?" হেল্পার + প্রশ্নোত্তর (FAQ) --- */
+(function(){
+  const fab=$("helper-fab"), panel=$("helper-panel"), hx=$("helper-x"), box=$("faq-list"), fs=$("faq-search");
+  if(!fab||!panel) return;
+  function renderFaq(){
+    if(!box) return; const list=S.faq||[];
+    box.innerHTML = list.length
+      ? list.map(f=>`<div class="faq-item"><div class="faq-q" data-i18n-keep>${esc(f.q)}</div><div class="faq-a" data-i18n-keep>${esc(f.a||"")}</div></div>`).join("")
+      : `<p class="note">মালিক এখনো FAQ যোগ করেননি।</p>`;
+    applyI18n(box);
+  }
+  fab.addEventListener("click",()=>{ const open=panel.classList.contains("open"); if(!open) renderFaq(); panel.classList.toggle("open",!open); });
+  if(hx) hx.addEventListener("click",()=>panel.classList.remove("open"));
+  if(fs) fs.addEventListener("input",()=>{ const v=fs.value.toLowerCase(); document.querySelectorAll("#faq-list .faq-item").forEach(it=>{ it.style.display = it.textContent.toLowerCase().includes(v)?"":"none"; }); });
+  document.addEventListener("click",e=>{ const q=e.target.closest("#faq-list .faq-q"); if(q){ const it=q.closest(".faq-item"); if(it) it.classList.toggle("open"); } });
+})();
 function fmtDate(ts){ try{ return new Date(ts).toLocaleDateString(); }catch(e){ return ""; } }
 async function renderAccount(){
   const u=Auth.user; const box=$("account-body"); if(!box) return;

@@ -33,6 +33,7 @@ const SHARED_CSS = String.raw`
   .nav-inner{display:flex;align-items:center;gap:18px;height:70px}
   .brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.2px;cursor:pointer}
   .brand .dot{width:13px;height:13px;border-radius:50%;background:conic-gradient(from 210deg,var(--a1),var(--a2),var(--a1));box-shadow:0 0 18px 1px rgba(139,92,246,.7)}
+  .brand .brand-mark{height:32px;width:auto;display:block;filter:drop-shadow(0 0 10px rgba(139,92,246,.35))}
   .brand .name{font-size:19px} .brand .name .glow{background:linear-gradient(92deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .nav-links{margin-left:auto;display:flex;gap:6px;align-items:center}
   .nav-links a{padding:9px 15px;border-radius:12px;color:var(--muted);font-weight:600;font-size:15px;transition:color .25s var(--ease),background .25s var(--ease)}
@@ -257,6 +258,7 @@ const SHARED_CSS = String.raw`
   .boot .ring{width:46px;height:46px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--a2);animation:spin .8s linear infinite} @keyframes spin{to{transform:rotate(360deg)}}
   /* loader.svg-ভিত্তিক ইনলাইন লোডার (boot + ছোট ইনলাইন) — অ্যানিমেশন CSS এখানে, যাতে reduced-motion নিয়ন্ত্রণ করা যায় */
   .boot-inner{display:grid;place-items:center}
+  .boot-anim{width:min(92vw,760px);height:auto;display:block;user-select:none;-webkit-user-drag:none}
   .dlr{display:block;line-height:0}
   .dlr-sq{fill:none;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:400;stroke-dashoffset:400;transform-origin:100px 100px;animation:drawSquare 2.4s cubic-bezier(.65,0,.35,1) infinite}
   .dlr-logo{fill:#00A8FF;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-weight:800;font-size:46px;letter-spacing:-2px;text-anchor:middle;dominant-baseline:central;transform-origin:100px 104px;animation:pulseLogo 2.4s ease-in-out infinite}
@@ -734,8 +736,8 @@ function loaderSvg(size, uid){
     + '<text class="dlr-logo" x="102" y="108" filter="url(#'+f+')">D<tspan class="dlr-ap">\'</tspan></text>'
     + '</svg>';
 }
-/* পুরো-স্ক্রিন বুট লোডার: #boot-এ loader.svg বসায়; লোড শেষে .hide দিয়ে মিলিয়ে যায় */
-function renderBootLoader(){ const b=$("boot"); if(b) b.innerHTML='<div class="boot-inner">'+loaderSvg(96,"boot")+'</div>'; }
+/* পুরো-স্ক্রিন বুট লোডার: #boot-এ আধুনিক ব্র্যান্ডেড boot animation বসায়; লোড শেষে .hide দিয়ে মিলিয়ে যায় */
+function renderBootLoader(){ const b=$("boot"); if(b) b.innerHTML='<img class="boot-anim" src="assets/boot-animation.svg" alt="DEEPostrophy" draggable="false">'; }
 /* ছোট ইনলাইন লোডার (≈৪০px): কোনো কন্টেইনারে বসানো/সরানো যায় */
 function showLoader(el, size){
   if(!el) return null;
