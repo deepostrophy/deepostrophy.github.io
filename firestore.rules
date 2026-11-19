@@ -64,6 +64,43 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
+    // ---- Stats (আইটেমের ডাউনলোড / সেভ / রিঅ্যাকশন কাউন্টার) ----
+    // সবার পড়া যাবে (গেস্ট সহ)। লিখতে পারবে যে কেউ — কিন্তু এই ডকুমেন্টের
+    // চারটি ফিল্ড ছাড়া আর কিছু ছুঁতে পারবে না (published/অন্য collection ভেদ করা অসম্ভব)।
+    // শর্ত (কোনো emoji লেখা হয়নি — শুধু সংখ্যার সীমা, তাই console-এ paste করলেই চলবে):
+    //   id        == ডকুমেন্টের আইটেম আইডি
+    //   downloads : int, >=0, প্রতি লেখায় শুধু 0 বা +1 বাড়ে (বড় সংখ্যা ঠুকা যায় না)
+    //   saves     : int, >=0, প্রতি লেখায় ±1 (unsave হলে কমে)
+    //   reactions : map, 3টির বেশি key নয়, প্রতিটা মান int 0..1000000, প্রতি লেখায় ±1
+    //   সবাই মিলে এক লেখায় পরিবর্তন <= 3 (একবারে সর্বোচ্চ ৩ ঘর নড়াচড়া)
+    match /stats/{itemId} {
+      allow read: if true;
+
+      allow create: if
+        request.resource.data.id == itemId
+        && request.resource.data.keys().hasOnly(['id', 'downloads', 'saves', 'reactions'])
+        && request.resource.data.downloads is int && request.resource.data.downloads >= 0 && request.resource.data.downloads <= 3
+        && request.resource.data.saves is int && request.resource.data.saves >= 0 && request.resource.data.saves <= 3
+        && request.resource.data.reactions is map
+        && request.resource.data.reactions.keys().size() <= 3
+        && request.resource.data.reactions.values().all(v, v is int && v >= 0 && v <= 1000000);
+
+      allow update: if
+        request.resource.data.id == resource.data.id
+        && request.resource.data.keys().hasOnly(['id', 'downloads', 'saves', 'reactions'])
+        && request.resource.data.downloads is int && request.resource.data.downloads >= resource.data.downloads && request.resource.data.downloads <= resource.data.downloads + 1
+        && request.resource.data.saves is int && request.resource.data.saves >= resource.data.saves - 1 && request.resource.data.saves <= resource.data.saves + 1 && request.resource.data.saves >= 0
+        && request.resource.data.reactions is map
+        && request.resource.data.reactions.keys().size() <= 3
+        && request.resource.data.reactions.values().all(v, v is int && v >= 0 && v <= 1000000)
+        && request.resource.data.reactions.diff(resource.data.reactions).values().all(d, d is int && d >= -1 && d <= 1)
+        && (
+          request.resource.data.downloads - resource.data.downloads
+          + math.abs(request.resource.data.saves - resource.data.saves)
+          + request.resource.data.reactions.diff(resource.data.reactions).values().size()
+        ) <= 3;
+    }
+
     // ---- বাকি সব কিছু বন্ধ ----
     match /{document=**} {
       allow read, write: if false;

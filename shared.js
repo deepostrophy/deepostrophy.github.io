@@ -141,7 +141,8 @@ const SHARED_CSS = String.raw`
   .cover{height:170px;position:relative;display:flex;align-items:flex-end;padding:16px;overflow:hidden}
   .cover .glow{position:absolute;inset:0} .cover .thumb{position:absolute;inset:0;object-fit:cover;width:100%;height:100%}
   .cover canvas.mosaic{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
-  .cover .type{position:relative;z-index:5;font-size:12.5px;font-weight:700;color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);padding:5px 11px;border-radius:999px}
+  .cover .cover-anim{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;background:transparent;border:0;z-index:5}
+  .cover .type{position:relative;z-index:6;font-size:12.5px;font-weight:700;color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.2);padding:5px 11px;border-radius:999px}
   .card-body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:11px;flex:1}
   .card-body h3{margin:0;font-size:20px;font-weight:800;letter-spacing:-.2px}
   .card-body .tagline{margin:-4px 0 0;color:var(--muted);font-size:14.5px;line-height:1.55}
@@ -151,6 +152,26 @@ const SHARED_CSS = String.raw`
   .card-actions{display:flex;gap:9px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
   .flag{position:absolute;left:14px;top:14px;z-index:6;font-size:11px;font-weight:800;letter-spacing:.3px;padding:4px 9px;border-radius:8px}
   .flag.feat{background:linear-gradient(96deg,var(--a1),var(--a2));color:#0a0a12} .flag.draft{background:rgba(0,0,0,.4);color:#ffd27a;border:1px solid rgba(255,210,122,.35)}
+
+  /* --- v6.9.8 পরিসংখ্যান + রিঅ্যাকশন --- */
+  .item-stat{display:flex;gap:14px;margin-top:10px;font-size:12.5px;color:var(--muted);font-weight:600}
+  .item-stat .is-d,.item-stat .is-r{display:inline-flex;gap:5px;align-items:center}
+  .item-stat b{color:var(--ink);font-weight:700}
+  .stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .stat{flex:1 1 0;min-width:92px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 8px;
+    border-radius:14px;background:var(--glass);border:1px solid var(--stroke)}
+  .stat i{font-size:18px;font-style:normal}
+  .stat b{font-size:20px;font-weight:800;background:linear-gradient(92deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat em{font-style:normal;font-size:11.5px;color:var(--muted)}
+  .rx-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+  .rx{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-family:inherit;color:var(--ink);
+    padding:8px 14px;border-radius:999px;background:var(--glass);border:1px solid var(--stroke);
+    transition:transform .2s var(--ease),background .2s var(--ease),border-color .2s var(--ease)}
+  .rx:hover{transform:translateY(-2px);border-color:var(--stroke-2)}
+  .rx .rx-e{font-size:17px;line-height:1} .rx .rx-n{font-size:14px;font-weight:800}
+  .rx.on{background:linear-gradient(92deg,rgba(139,92,246,.28),rgba(34,211,238,.18));border-color:var(--a1)}
+  .rx[disabled]{opacity:.6;cursor:progress}
+  @media (prefers-reduced-motion: reduce){.rx{transition:none}.rx:hover{transform:none}}
 
   .store-card{padding:22px;align-items:flex-start;gap:12px}
   .store-card .sicon{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:26px;border:1px solid var(--stroke-2)}
@@ -179,7 +200,8 @@ const SHARED_CSS = String.raw`
   .detail-hero{border-radius:var(--radius);overflow:hidden;border:1px solid var(--stroke);background:var(--glass);box-shadow:var(--shadow);position:relative}
   .detail-cover{height:250px;position:relative;display:flex;align-items:flex-end;padding:26px;overflow:hidden}
   .detail-cover canvas.mosaic{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
-  .detail-cover .title{position:relative;z-index:4} .detail-cover h2{margin:0;font-size:clamp(28px,6vw,50px);font-weight:800}
+  .detail-cover .cover-anim{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;background:transparent;border:0;z-index:4}
+  .detail-cover .title{position:relative;z-index:5} .detail-cover h2{margin:0;font-size:clamp(28px,6vw,50px);font-weight:800}
   .detail-cover p{margin:6px 0 0;color:rgba(255,255,255,.92);max-width:60ch}
   .detail-body{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;margin-top:22px}
   @media(max-width:820px){.detail-body{grid-template-columns:1fr}}
@@ -236,6 +258,24 @@ const SHARED_CSS = String.raw`
   dialog.modal::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
   .modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--stroke)} .modal-head h3{margin:0;font-size:19px}
   .modal-body{padding:22px;max-height:72vh;overflow:auto} .modal-foot{display:flex;gap:10px;justify-content:flex-end;padding:18px 22px;border-top:1px solid var(--stroke)}
+
+  /* ▶ প্লে / iframe গেম মোডাল */
+  .btn.play{background:linear-gradient(96deg,#22c55e,#a3e635);border:none;color:#06210f;box-shadow:0 16px 40px -16px rgba(34,197,94,.5)}
+  dialog.modal.play-modal{width:min(1100px,96vw);max-height:92vh;display:flex;flex-direction:column;padding:0}
+  .play-modal .modal-head{padding:14px 18px} .play-modal .modal-head h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70vw}
+  .play-modal .mh-tools{display:flex;gap:8px;flex:0 0 auto}
+  .play-modal .modal-body{padding:0;flex:1 1 auto;min-height:58vh;max-height:none;position:relative;overflow:hidden;display:flex;background:#0a0a12}
+  .play-modal iframe{flex:1 1 auto;width:100%;height:100%;min-height:58vh;border:0;display:block;background:#0a0a12;color-scheme:normal}
+  .play-modal .modal-foot{padding:12px 18px;align-items:center;justify-content:space-between}
+  .play-load{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0a0a12;color:var(--muted);font-size:14px;z-index:2;transition:opacity .3s}
+  .play-load.hide{opacity:0;pointer-events:none}
+  .play-spin{width:46px;height:46px;border-radius:50%;border:4px solid rgba(255,255,255,.14);border-top-color:#22c55e;animation:playspin 1s linear infinite}
+  @keyframes playspin{to{transform:rotate(360deg)}}
+  dialog.play-modal:fullscreen{width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0;border:none}
+  dialog.play-modal:fullscreen::backdrop{display:none}
+  dialog.play-modal:fullscreen .modal-body,dialog.play-modal:fullscreen iframe{min-height:0}
+  @media (max-width:640px){.play-modal .modal-head h3{max-width:58vw} .play-modal .modal-body, .play-modal iframe{min-height:52vh}}
+  .reduce-motion .play-spin{animation:none;border-top-color:#22c55e}
   .grp{border-top:1px solid var(--stroke);margin:6px 0 14px;padding-top:14px} .grp > label{color:var(--a2);font-size:12.5px;text-transform:none;letter-spacing:.3px;font-weight:800;display:block;margin-bottom:10px}
 
   /* FAQ / হেল্পার */
@@ -419,12 +459,587 @@ const I18N = {
   ],
   /* --- মালিক নিজে হাতে পূরণ করবেন: key = বাংলা মূল লেখা, value = ঐ ভাষার অনুবাদ ---
      খালি টেবিল = সব লেখা ইংরেজিতে দেখাবে (silent fallback)। একটা ঘরে কিছু লিখলে সেটাই চলবে। */
-  es: {},
-  de: {},
-  ja: {},
-  fr: {},
-  pt: {},
-  hi: {},
+  es: {"মেনু":"Menú", "হোম":"Inicio", "যোগাযোগ":"Contacto", "সাইট দেখুন":"Ver el sitio", "স্টোর দেখুন":"Explorar la tienda",
+    "হোমে ফিরুন":"Volver al inicio", "← হোমে ফিরুন":"← Volver al inicio", "← স্টোরে ফিরুন":"← Volver a la tienda", "সাহায্য":"Ayuda",
+    "সাহায্য ও প্রশ্নোত্তর":"Ayuda y preguntas", "প্রশ্ন খুঁজুন…":"Buscar preguntas…", "ভাষা বদলান":"Cambiar idioma", "ভাষা খুঁজুন…":"Buscar idiomas…",
+    "কোনো ভাষা মেলেনি":"Ningún idioma coincide", "শব্দ চালু":"Sonido activado", "শব্দ বন্ধ":"Sonido desactivado",
+    "এই সাইট এখন <b>localStorage</b> মোডে চলছে। Firebase কনফিগ বসালেই Firestore/Auth-এ চলে যাবে।":"Este sitio funciona en modo <b>localStorage</b>. Añade la configuración de Firebase y pasará a Firestore/Auth.",
+    "Firebase মোড সক্রিয়। সব ভিজিটর প্রকাশিত কন্টেন্ট দেখবেন।":"Modo Firebase activo. Todos los visitantes verán tu contenido publicado.",
+    "FIREBASE":"FIREBASE", "LOCAL":"LOCAL", "ফিচারড আইটেম":"Elementos destacados", "স্টোরগুলোর বাছাই করা কাজ।":"Una selección de las tiendas.",
+    "স্টোর":"Tienda", "স্টোর:":"Tienda:", "{label} স্টোর":"Tienda {label}",
+    "প্রতিটি স্টোরে নিজস্ব ধরনের আইটেম সাজানো থাকে।":"Cada tienda guarda elementos de su propio tipo.",
+    "এখনো কোনো স্টোর যোগ করা হয়নি।":"Aún no se han añadido tiendas.",
+    "কন্ট্রোল প্যানেল থেকে আপনার প্রথম স্টোর তৈরি করুন — তারপর ভেতরে আইটেম বসান।":"Crea tu primera tienda en el panel de control, luego añade elementos dentro.",
+    "কন্ট্রোল প্যানেল খুলুন":"Abrir panel de control", "কন্ট্রোল প্যানেল":"Panel de control",
+    "নাম, বিবরণ বা ট্যাগ খুঁজুন…":"Busca nombre, descripción o etiqueta…", "ধরন":"Tipo", "আইটেম":"Elemento", "টি আইটেম":"elementos",
+    "{n}টি আইটেম":"{n} elementos", "আইটেম · {n}টি":"Elementos · {n}", "এই স্টোরে এখনো কিছু যোগ করা হয়নি।":"Aún no hay nada en esta tienda.",
+    "কন্ট্রোল প্যানেল থেকে আইটেম যোগ করুন।":"Añade elementos desde el panel de control.", "কোনো ধরন নেই।":"Sin tipos aún.", "★ ফিচারড":"★ Destacado",
+    "খসড়া":"Borrador", "খুলুন":"Abrir", "সোর্স":"Fuente", "ডাউনলোড":"Descargar", "সোর্স কোড":"Código fuente", "লিংক ও ডাউনলোড":"Enlaces y descarga",
+    "তথ্য":"Detalles", "বিবরণ":"Descripción", "ইনস্টল নির্দেশ":"Pasos de instalación", "README":"README", "লিংক":"Enlace",
+    "এই আইটেমের কোনো লিংক যোগ করা হয়নি।":"No se han añadido enlaces para este elemento.",
+    "আইটেমটি পাওয়া যায়নি বা প্রকাশিত নয়।":"Este elemento no existe o no está publicado.", "লেখক":"Autor", "বছর":"Año", "পরিচয়":"Identidad",
+    "সংযোগ":"Conectar", "কোনো প্রজেক্ট, সহযোগিতা বা প্রশ্ন থাকলে লিখুন।":"Escríbeme sobre un proyecto, una colaboración o una pregunta.",
+    "নাম":"Nombre", "আপনার নাম":"Tu nombre", "ইমেইল":"Correo", "আপনার ইমেইল":"Tu correo", "মেসেজ":"Mensaje",
+    "কী জানাতে চান…":"¿Qué quieres compartir…", "পাঠান":"Enviar", "সরাসরি লিংক":"Enlaces directos",
+    "যোগাযোগের লিংক যোগ করা হয়নি।":"Aún no hay enlaces de contacto.",
+    "কন্ট্রোল প্যানেল → সাইট সেটিংস থেকে ইমেইল ও সোশ্যাল লিংক দিন।":"Añade tu correo y enlaces sociales en Panel → Ajustes del sitio.",
+    "এই বিভাগে এখনো লেখা যোগ করা হয়নি।":"Aún no hay texto en esta sección.",
+    "আপনার নাম সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"Tu nombre debe tener como máximo 100 caracteres.", "ইমেইল দিন।":"Introduce tu correo.",
+    "ইমেইল সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"El correo debe tener como máximo 100 caracteres.",
+    "সঠিক ইমেইল ঠিকানা দিন (@ সহ)।":"Introduce un correo válido (con @).", "মেসেজ লিখুন।":"Escribe un mensaje.",
+    "মেসেজ সর্বোচ্চ ২০০০ অক্ষরের হতে পারে।":"El mensaje puede tener como máximo 2000 caracteres.",
+    "ধন্যবাদ! মেসেজটি পাঠানো হয়েছে।":"¡Gracias! Tu mensaje ha sido enviado.", "পাঠানো যায়নি: {msg}":"No se pudo enviar: {msg}",
+    "এই ঠিকানায় কিছু নেই।":"No hay nada en esta dirección.", "মালিকের জন্য সুরক্ষিত এলাকা":"Área segura para el propietario",
+    "অ্যাডমিন লগইন":"Acceso de administrador",
+    "শুধু মালিক স্টোর, আইটেম ও সেটিংস নিয়ন্ত্রণ করতে পারবেন।":"Solo el propietario puede gestionar tiendas, elementos y ajustes.",
+    "পাসওয়ার্ড":"Contraseña", "প্রবেশ করুন":"Iniciar sesión", "প্রবেশ":"Entrar",
+    "শুধু মালিকই এখানে ঢুকতে পারবেন।":"Solo el propietario puede acceder aquí.", "পাসকোড":"Código",
+    "নতুন পাসকোড সেট করুন (৪+ অক্ষর)":"Define un nuevo código (4+ caracteres)", "আপনি মালিক নন।":"No eres el propietario.",
+    "লগইন ব্যর্থ।":"Error de acceso.", "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।":"Problema de conexión. Inténtalo de nuevo.",
+    "ইমেইল যাচাই করুন। আপনার ইনবক্সে পাঠানো লিংকে ক্লিক করুন।":"Verifica tu correo. Haz clic en el enlace enviado a tu bandeja.",
+    "যাচাই-লিংক আবার পাঠান":"Reenviar el enlace de verificación", "পাঠানো হচ্ছে…":"Enviando…",
+    "যাচাই-লিংক পাঠানো হয়েছে ✅ ইনবক্স (না-থাকলে স্প্যাম) দেখুন, লিংকে ক্লিক করুন, তারপর আবার লগইন করুন।":"Enlace de verificación enviado ✅ Revisa tu bandeja (y spam), haz clic en el enlace y vuelve a iniciar sesión.",
+    "ভুল পাসকোড।":"Código incorrecto.", "পাসকোড অন্তত ৪ অক্ষরের দিন।":"Introduce un código de al menos 4 caracteres.",
+    "সাইট ব্যবস্থাপনা":"Gestión del sitio", "লগআউট":"Cerrar sesión", "সাইট সেটিংস":"Ajustes del sitio", "ডেটা":"Datos", "FAQ":"FAQ", "ক্রম":"Orden",
+    "প্রকাশ":"Publicar", "অ্যাকশন":"Acciones", "সম্পাদনা":"Editar", "মুছুন":"Eliminar", "সংরক্ষণ":"Guardar", "বাতিল":"Cancelar",
+    "প্রকাশিত":"Publicado", "ফিচার":"Destacado", "স্টোর ব্যবস্থাপনা":"Gestión de tiendas", "+ নতুন স্টোর":"+ Nueva tienda",
+    "↑ ↓ দিয়ে ক্রম বদলান। “প্রকাশ” বন্ধ থাকলে স্টোরটি সাইটে দেখাবে না। স্টোর মুছলে তার ভেতরের সব আইটেমও মুছে যাবে।":"Usa ↑ ↓ para cambiar el orden. Una tienda con “Publicar” apagado permanece oculta. Eliminar una tienda borra también todos sus elementos.",
+    "এখনো কোনো স্টোর নেই। “+ নতুন স্টোর” চেপে শুরু করুন।":"Sin tiendas aún. Pulsa “+ Nueva tienda” para empezar.",
+    "“{name}” স্টোরটি মুছে ফেলবেন? ভেতরের সব আইটেমও মুছে যাবে।":"¿Eliminar la tienda “{name}”? También se borrarán todos sus elementos.",
+    "স্টোর সম্পাদনা":"Editar tienda", "নতুন স্টোর":"Nueva tienda", "আইকন (একটি ইমোজি/অক্ষর)":"Icono (un emoji o letra)", "যেমন 📱":"ej. 📱",
+    "এই স্টোরে কী কী থাকে…":"Qué contiene esta tienda…", "যেমন: আমার অ্যাপসমূহ":"ej. Mis apps", "+ নতুন আইটেম":"+ Nuevo elemento",
+    "প্রথমে একটি স্টোর তৈরি করুন।":"Primero crea una tienda.",
+    "আইটেম সবসময় কোনো না কোনো স্টোরের ভেতরে থাকে।":"Los elementos siempre viven dentro de una tienda.",
+    "“হোমে ফিচার” দিলে আইটেমটি হোমের ফিচারড সেকশনে দেখাবে। বইয়ের কপির জন্য লেখক/বছর, এক্সটেনশনের জন্য ইনস্টল নির্দেশ ফিল্ড ভরে দিন।":"“Destacar en inicio” muestra el elemento en la sección destacada. Para copias de libros completa autor/año; para extensiones, los pasos de instalación.",
+    "এই স্টোরে এখনো আইটেম নেই। “+ নতুন আইটেম” চেপে যোগ করুন।":"Sin elementos en esta tienda aún. Pulsa “+ Nuevo elemento” para añadir.",
+    "“{name}” আইটেমটি মুছে ফেলবেন?":"¿Eliminar el elemento “{name}”?", "আইটেম সম্পাদনা":"Editar elemento", "নতুন আইটেম":"Nuevo elemento",
+    "ধরন (type)":"Categoría", "কাস্টম টাইপের নাম":"Nombre del tipo personalizado", "যেমন: গেম, টেমপ্লেট, UI কিট…":"ej. Juegos, Plantillas, Kits UI…",
+    "যেমন: Wallora":"ej. Wallora", "এক লাইনের পরিচয় (tagline)":"Lema de una línea", "সংক্ষিপ্ত বর্ণনা":"Descripción breve",
+    "বিস্তারিত বিবরণ…":"Descripción detallada…", "ট্যাগ (কমা দিয়ে)":"Etiquetas (separadas por coma)", "বইয়ের কপি":"Copia del libro",
+    "লেখকের নাম":"Nombre del autor", "এক্সটেনশন":"Extensión", "কীভাবে ইনস্টল করবেন…":"Cómo instalarlo…", "কভার":"Portada",
+    "কভার রঙ":"Color de portada", "নিজের রঙ":"Color personalizado", "কভার ছবির লিংক":"Enlace de imagen de portada",
+    "https://… (ছবির সরাসরি লিংক)":"https://… (enlace directo de imagen)", "ডাউনলোড ও লিংক":"Descarga y enlaces", "ডাউনলোড লিংক":"Enlace de descarga",
+    "GitHub Release-এর asset লিংক বা যেকোনো সরাসরি ফাইল লিংক দিন।":"Pega un enlace de recurso de GitHub Release o cualquier enlace directo de archivo.",
+    "সোর্স লিংক":"Enlace de fuente", "বিস্তারিত পাতায় দেখানোর নোট…":"Nota mostrada en la página de detalle…", "হোমে ফিচার":"Destacar en inicio",
+    "প্রশ্নোত্তর (FAQ)":"Preguntas (FAQ)", "+ নতুন প্রশ্ন":"+ Nueva pregunta", "প্রশ্ন":"Pregunta",
+    "এখনো কোনো প্রশ্ন নেই। “+ নতুন প্রশ্ন” চেপে যোগ করুন।":"Sin preguntas aún. Pulsa “+ Nueva pregunta” para añadir.", "প্রশ্নোত্তর":"Preguntas",
+    "নতুন প্রশ্ন":"Nueva pregunta", "প্রশ্ন সম্পাদনা":"Editar pregunta", "উত্তর":"Respuesta",
+    "যেমন: আপনি কী কী নিয়ে কাজ করেন?":"ej. ¿En qué tipo de trabajo te especializas?", "এখানে উত্তর লিখুন…":"Escribe la respuesta aquí…",
+    "প্রশ্নটি মুছে ফেলবেন?":"¿Eliminar esta pregunta?",
+    "এই প্রশ্নোত্তরগুলো সাইটের কোণার ভাসমান হেল্পারে দেখাবে। এগুলো আসল AI নয়, আগে থেকে লেখা উত্তর।":"Estas preguntas aparecen en el ayudante flotante de la esquina. Son respuestas preescritas, no IA real.",
+    "কোনো প্রশ্ন পাওয়া যায়নি।":"No se encontraron preguntas.", "অন্য কিছু লিখে দেখুন।":"Prueba con otras palabras.",
+    "মালিক এখনো FAQ যোগ করেননি।":"El propietario aún no ha añadido FAQ.", "যোগাযোগ মেসেজ":"Mensajes de contacto", "রিফ্রেশ":"Actualizar",
+    "শুধু আপনি (মালিক) এই মেসেজ পড়তে পারবেন; সাধারণ দর্শক পাঠাতে পারবে কিন্তু কারও মেসেজ দেখতে পাবে না।":"Solo tú (el propietario) puedes leer estos mensajes; los visitantes pueden enviarlos pero nunca ver los de nadie.",
+    "কোনো মেসেজ নেই।":"Sin mensajes.", "যোগাযোগ ফর্ম থেকে আসা মেসেজ এখানে দেখাবে।":"Los mensajes del formulario de contacto aparecen aquí.",
+    "— কোনো স্টোর নেই —":"— sin tiendas —", "সাইটের নাম":"Nombre del sitio", "যোগাযোগের ইমেইল":"Correo de contacto",
+    "হোমের পরিচয়ের লেখা (এক/দুই লাইন)":"Línea de identidad del inicio (una o dos líneas)", "আপনি কে, কী নিয়ে কাজ করেন…":"Quién eres y qué creas…",
+    "খালি রাখলে হোমে এই লাইন দেখাবে না।":"Déjalo vacío para ocultar esta línea en el inicio.",
+    "About DEEPostrophy বিভাগের লেখা":"Texto de la sección About DEEPostrophy", "লক্ষ্য, দক্ষতা ও পথচলা…":"Metas, habilidades y el camino…",
+    "লেখা সংরক্ষণ":"Guardar el texto",
+    "এই লেখাটি সাইটের About DEEPostrophy বিভাগেই দেখায় — অন্য কোথাও নয়।":"Este texto aparece solo en la sección About DEEPostrophy del sitio — en ningún otro lugar.",
+    "ভাষা":"Idioma", "ডিফল্ট English; ভিজিটার নিজে বেছে নিলে সেটি মনে থাকে।":"Por defecto inglés; la elección del visitante se recuerda.",
+    "অটো-ভাষা চালু":"Activar idioma automático",
+    "ভিজিটার এখনো ভাষা বেয়ে না রাখলে তাঁর ব্রাউজারের ভাষাটি চুপচাপ প্রয়োগ হবে — কোনো প্রশ্ন বা পপআপ আসবে না।":"Si un visitante aún no ha elegido idioma, se aplica en silencio el de su navegador — sin preguntas ni ventanas.",
+    "অনুবাদ (আপনার নিজের হাতে)":"Traducciones (a tu mano)",
+    "৮টি ভাষা চালু; খালি থাকা ঘরগুলো স্বয়ংক্রিয়ভাবে English দেখায়।":"8 idiomas activos; los campos vacíos muestran inglés automáticamente.",
+    "ভাষা তালিকা":"Lista de idiomas", "প্রতিটি UI লেখার অনুবাদ":"Traducción de cada texto de la interfaz", "সোশ্যাল লিংক":"Enlaces sociales",
+    "+ লিংক যোগ করুন":"+ Añadir enlace",
+    "শুধু আসল লিংক দিন (https:// বা mailto: দিয়ে শুরু)।":"Usa solo enlaces reales (que empiecen con https:// o mailto:).",
+    "লেবেল (যেমন GitHub)":"Etiqueta (ej. GitHub)", "সেটিংস সংরক্ষণ":"Guardar ajustes", "সংরক্ষিত হয়েছে ✅":"Guardado ✅",
+    "ডেটা রপ্তানি ও আমদানি":"Exportar e importar datos",
+    "পুরো সাইটের ডেটা (স্টোর, আইটেম, FAQ, সেটিংস, মেসেজ) এক JSON ফাইলে সংরক্ষণ বা ফিরিয়ে আনুন।":"Guarda o restaura todo el sitio (tiendas, elementos, FAQ, ajustes, mensajes) como un archivo JSON.",
+    "⬇ JSON রপ্তানি":"⬇ Exportar JSON", "⬆ JSON আমদানি":"⬆ Importar JSON", "আমদানি সফল ✅":"Importación exitosa ✅",
+    "ফাইল পড়া যায়নি — সঠিক JSON দিন।":"No se pudo leer el archivo — proporciona JSON válido.",
+    "লোকাল অ্যাডমিন পাসকোড":"Código local de administrador",
+    "Firebase কনফিগ বসানো না থাকলে প্যানেলে ঢুকতে এই লোকাল পাসকোড লাগে (এটি ডিফল্ট নয় — আপনি নিজে সেট করেন)। Firebase চালু হলে এটি প্রযোজ্য থাকবে না।":"Sin configuración de Firebase este código local abre el panel (no es un valor por defecto — lo defines tú). Deja de aplicar cuando Firebase está activo.",
+    "নতুন পাসকোড":"Nuevo código", "অন্তত ৪ অক্ষর":"Al menos 4 caracteres", "পাসকোড সেট / বদলান":"Definir / cambiar código",
+    "পাসকোড অন্তত ৪ অক্ষর।":"El código necesita al menos 4 caracteres.", "লোকাল পাসকোড সেট হয়েছে ✅":"Código local definido ✅", "অ্যাপ":"App",
+    "AI টুলস":"Herramientas de IA", "AI টুল":"Herramienta de IA", "কালারফুল আর্টস":"Artes coloridas", "আর্ট":"Arte",
+    "পাইথন এক্সটেনশন":"Extensión de Python", "ফাইল সংরক্ষণ":"Almacenamiento de archivos", "ফাইল":"Archivo", "কাস্টম":"Personalizado",
+    "অন্যান্য":"Otros", "ওয়ালপেপার":"Fondo de pantalla", "ছবি":"Imagen", "গান":"Canción", "মুভি":"Película",
+    "Portfolio · App Store":"Portfolio · App Store", "ওয়েলকাম টু":"Bienvenido a",
+    "আমি অ্যাপ, AI টুল আর ডিজাইন বানাই — পরিষ্কার, দ্রুত আর দেখতে সুন্দর।":"Creo apps, herramientas de IA y diseño — limpio, rápido y atractivo.",
+    "যোগাযোগ করুন":"Contactar", "আর্ট ও ডিজাইন":"Arte y diseño", "পাইথন":"Python", "পরিষ্কার UI ও দ্রুত অভিজ্ঞতা":"UI limpio, experiencia rápida",
+    "AI দিয়ে বাস্তব সমাধান":"Soluciones reales con IA", "রঙিন, চোখে জমে এমন কাজ":"Trabajo colorido que capta la mirada",
+    "প্র্যাকটিক্যাল স্ক্রিপ্ট ও টুল":"Scripts y herramientas prácticas" , "পরিসংখ্যান ও রিঅ্যাকশন":"Estadísticas y reacciones", "মোট ডাউনলোড":"Descargas totales", "সেভ":"Guardados", "রিঅ্যাকশন":"Reacciones", "এখনো কোনো রিঅ্যাকশন নেই।":"Aún no hay reacciones.", "আপনিও প্রথম রিঅ্যাকশন দিতে পারেন।":"Sé el primero en reaccionar.", "রিঅ্যাকশন দিতে লগ-ইন করুন।":"Inicia sesión para reaccionar.", "ধন্যবাদ, রিঅ্যাকশন যোগ হয়েছে!":"¡Gracias, tu reacción fue añadida!", "প্রথম রিঅ্যাকশন দিন":"Añade la primera reacción", "আপনার রিঅ্যাকশন":"Tu reacción", "প্লে":"Jugar", "নতুন ট্যাবে খুলুন":"Abrir en nueva pestaña", "লোড হচ্ছে…":"Cargando…", "ফুল স্ক্রিন":"Pantalla completa", "বন্ধ করুন":"Cerrar" },
+  de: {"মেনু":"Menü", "হোম":"Start", "যোগাযোগ":"Kontakt", "সাইট দেখুন":"Seite ansehen", "স্টোর দেখুন":"Store durchsuchen",
+    "হোমে ফিরুন":"Zurück zur Startseite", "← হোমে ফিরুন":"← Zurück zur Startseite", "← স্টোরে ফিরুন":"← Zurück zum Store", "সাহায্য":"Hilfe",
+    "সাহায্য ও প্রশ্নোত্তর":"Hilfe & FAQ", "প্রশ্ন খুঁজুন…":"Fragen suchen…", "ভাষা বদলান":"Sprache wechseln", "ভাষা খুঁজুন…":"Sprachen suchen…",
+    "কোনো ভাষা মেলেনি":"Keine Sprache gefunden", "শব্দ চালু":"Ton an", "শব্দ বন্ধ":"Ton aus",
+    "এই সাইট এখন <b>localStorage</b> মোডে চলছে। Firebase কনফিগ বসালেই Firestore/Auth-এ চলে যাবে।":"Diese Seite läuft im <b>localStorage</b>-Modus. Füge die Firebase-Konfiguration hinzu, um zu Firestore/Auth zu wechseln.",
+    "Firebase মোড সক্রিয়। সব ভিজিটর প্রকাশিত কন্টেন্ট দেখবেন।":"Firebase-Modus aktiv. Alle Besucher sehen deine veröffentlichten Inhalte.",
+    "FIREBASE":"FIREBASE", "LOCAL":"LOCAL", "ফিচারড আইটেম":"Ausgewählte Einträge",
+    "স্টোরগুলোর বাছাই করা কাজ।":"Eine kuratierte Auswahl aus den Stores.", "স্টোর":"Store", "স্টোর:":"Store:", "{label} স্টোর":"{label}-Store",
+    "প্রতিটি স্টোরে নিজস্ব ধরনের আইটেম সাজানো থাকে।":"Jeder Store enthält Einträge eigener Art.",
+    "এখনো কোনো স্টোর যোগ করা হয়নি।":"Es wurden noch keine Stores hinzugefügt.",
+    "কন্ট্রোল প্যানেল থেকে আপনার প্রথম স্টোর তৈরি করুন — তারপর ভেতরে আইটেম বসান।":"Erstelle deinen ersten Store im Bedienfeld und füge dann Einträge hinzu.",
+    "কন্ট্রোল প্যানেল খুলুন":"Bedienfeld öffnen", "কন্ট্রোল প্যানেল":"Bedienfeld", "নাম, বিবরণ বা ট্যাগ খুঁজুন…":"Name, Beschreibung oder Tag suchen…",
+    "ধরন":"Typ", "আইটেম":"Eintrag", "টি আইটেম":"Einträge", "{n}টি আইটেম":"{n} Einträge", "আইটেম · {n}টি":"Einträge · {n}",
+    "এই স্টোরে এখনো কিছু যোগ করা হয়নি।":"Zu diesem Store wurde noch nichts hinzugefügt.",
+    "কন্ট্রোল প্যানেল থেকে আইটেম যোগ করুন।":"Füge Einträge aus dem Bedienfeld hinzu.", "কোনো ধরন নেই।":"Noch keine Typen.", "★ ফিচারড":"★ Ausgewählt",
+    "খসড়া":"Entwurf", "খুলুন":"Öffnen", "সোর্স":"Quelle", "ডাউনলোড":"Herunterladen", "সোর্স কোড":"Quellcode", "লিংক ও ডাউনলোড":"Links & Download",
+    "তথ্য":"Details", "বিবরণ":"Beschreibung", "ইনস্টল নির্দেশ":"Installationsschritte", "README":"README", "লিংক":"Link",
+    "এই আইটেমের কোনো লিংক যোগ করা হয়নি।":"Für diesen Eintrag wurden keine Links hinzugefügt.",
+    "আইটেমটি পাওয়া যায়নি বা প্রকাশিত নয়।":"Dieser Eintrag wurde nicht gefunden oder ist nicht veröffentlicht.", "লেখক":"Autor", "বছর":"Jahr",
+    "পরিচয়":"Identität", "সংযোগ":"Verbinden",
+    "কোনো প্রজেক্ট, সহযোগিতা বা প্রশ্ন থাকলে লিখুন।":"Schreib mir über ein Projekt, eine Zusammenarbeit oder eine Frage.", "নাম":"Name",
+    "আপনার নাম":"Dein Name", "ইমেইল":"E-Mail", "আপনার ইমেইল":"Deine E-Mail", "মেসেজ":"Nachricht", "কী জানাতে চান…":"Was möchtest du mitteilen…",
+    "পাঠান":"Senden", "সরাসরি লিংক":"Direkte Links", "যোগাযোগের লিংক যোগ করা হয়নি।":"Es wurden noch keine Kontaktlinks hinzugefügt.",
+    "কন্ট্রোল প্যানেল → সাইট সেটিংস থেকে ইমেইল ও সোশ্যাল লিংক দিন।":"Füge E-Mail und Social-Links unter Bedienfeld → Website-Einstellungen hinzu.",
+    "এই বিভাগে এখনো লেখা যোগ করা হয়নি।":"Für diesen Abschnitt wurde noch kein Text hinzugefügt.",
+    "আপনার নাম সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"Dein Name darf höchstens 100 Zeichen haben.", "ইমেইল দিন।":"Bitte gib deine E-Mail ein.",
+    "ইমেইল সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"Die E-Mail darf höchstens 100 Zeichen haben.",
+    "সঠিক ইমেইল ঠিকানা দিন (@ সহ)।":"Gib eine gültige E-Mail-Adresse ein (mit @).", "মেসেজ লিখুন।":"Bitte schreibe eine Nachricht.",
+    "মেসেজ সর্বোচ্চ ২০০০ অক্ষরের হতে পারে।":"Die Nachricht darf höchstens 2000 Zeichen haben.",
+    "ধন্যবাদ! মেসেজটি পাঠানো হয়েছে।":"Danke! Deine Nachricht wurde gesendet.", "পাঠানো যায়নি: {msg}":"Konnte nicht senden: {msg}",
+    "এই ঠিকানায় কিছু নেই।":"Unter dieser Adresse gibt es nichts.", "মালিকের জন্য সুরক্ষিত এলাকা":"Sicherer Bereich für den Besitzer",
+    "অ্যাডমিন লগইন":"Admin-Login",
+    "শুধু মালিক স্টোর, আইটেম ও সেটিংস নিয়ন্ত্রণ করতে পারবেন।":"Nur der Besitzer kann Stores, Einträge und Einstellungen verwalten.",
+    "পাসওয়ার্ড":"Passwort", "প্রবেশ করুন":"Anmelden", "প্রবেশ":"Eintreten",
+    "শুধু মালিকই এখানে ঢুকতে পারবেন।":"Nur der Besitzer kann sich hier anmelden.", "পাসকোড":"Passcode",
+    "নতুন পাসকোড সেট করুন (৪+ অক্ষর)":"Neuen Passcode festlegen (4+ Zeichen)", "আপনি মালিক নন।":"Du bist nicht der Besitzer.",
+    "লগইন ব্যর্থ।":"Login fehlgeschlagen.", "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।":"Verbindungsproblem. Bitte erneut versuchen.",
+    "ইমেইল যাচাই করুন। আপনার ইনবক্সে পাঠানো লিংকে ক্লিক করুন।":"Bestätige deine E-Mail. Klicke auf den Link in deinem Posteingang.",
+    "যাচাই-লিংক আবার পাঠান":"Bestätigungslink erneut senden", "পাঠানো হচ্ছে…":"Wird gesendet…",
+    "যাচাই-লিংক পাঠানো হয়েছে ✅ ইনবক্স (না-থাকলে স্প্যাম) দেখুন, লিংকে ক্লিক করুন, তারপর আবার লগইন করুন।":"Bestätigungslink gesendet ✅ Siehe Posteingang (und Spam), klicke den Link und melde dich erneut an.",
+    "ভুল পাসকোড।":"Falscher Passcode.", "পাসকোড অন্তত ৪ অক্ষরের দিন।":"Gib einen Passcode mit mindestens 4 Zeichen ein.",
+    "সাইট ব্যবস্থাপনা":"Website-Verwaltung", "লগআউট":"Abmelden", "সাইট সেটিংস":"Website-Einstellungen", "ডেটা":"Daten", "FAQ":"FAQ",
+    "ক্রম":"Reihenfolge", "প্রকাশ":"Veröffentlichen", "অ্যাকশন":"Aktionen", "সম্পাদনা":"Bearbeiten", "মুছুন":"Löschen", "সংরক্ষণ":"Speichern",
+    "বাতিল":"Abbrechen", "প্রকাশিত":"Veröffentlicht", "ফিচার":"Ausgewählt", "স্টোর ব্যবস্থাপনা":"Store-Verwaltung", "+ নতুন স্টোর":"+ Neuer Store",
+    "↑ ↓ দিয়ে ক্রম বদলান। “প্রকাশ” বন্ধ থাকলে স্টোরটি সাইটে দেখাবে না। স্টোর মুছলে তার ভেতরের সব আইটেমও মুছে যাবে।":"Nutze ↑ ↓ für die Reihenfolge. Ein Store mit ausgeschaltetem „Veröffentlichen“ bleibt verborgen. Löschen eines Stores entfernt auch alle Einträge darin.",
+    "এখনো কোনো স্টোর নেই। “+ নতুন স্টোর” চেপে শুরু করুন।":"Noch keine Stores. Drücke „+ Neuer Store“ zum Starten.",
+    "“{name}” স্টোরটি মুছে ফেলবেন? ভেতরের সব আইটেমও মুছে যাবে।":"Store „{name}“ löschen? Alle Einträge darin werden ebenfalls gelöscht.",
+    "স্টোর সম্পাদনা":"Store bearbeiten", "নতুন স্টোর":"Neuer Store", "আইকন (একটি ইমোজি/অক্ষর)":"Symbol (ein Emoji oder Buchstabe)",
+    "যেমন 📱":"z. B. 📱", "এই স্টোরে কী কী থাকে…":"Was dieser Store enthält…", "যেমন: আমার অ্যাপসমূহ":"z. B. Meine Apps",
+    "+ নতুন আইটেম":"+ Neuer Eintrag", "প্রথমে একটি স্টোর তৈরি করুন।":"Erstelle zuerst einen Store.",
+    "আইটেম সবসময় কোনো না কোনো স্টোরের ভেতরে থাকে।":"Einträge leben immer in einem Store.",
+    "“হোমে ফিচার” দিলে আইটেমটি হোমের ফিচারড সেকশনে দেখাবে। বইয়ের কপির জন্য লেখক/বছর, এক্সটেনশনের জন্য ইনস্টল নির্দেশ ফিল্ড ভরে দিন।":"„Auf Startseite hervorheben“ zeigt den Eintrag im ausgewählten Abschnitt. Für Buchkopien Autor/Jahr, für Erweiterungen die Installationsschritte ausfüllen.",
+    "এই স্টোরে এখনো আইটেম নেই। “+ নতুন আইটেম” চেপে যোগ করুন।":"Noch keine Einträge in diesem Store. Drücke „+ Neuer Eintrag“.",
+    "“{name}” আইটেমটি মুছে ফেলবেন?":"Eintrag „{name}“ löschen?", "আইটেম সম্পাদনা":"Eintrag bearbeiten", "নতুন আইটেম":"Neuer Eintrag",
+    "ধরন (type)":"Kategorie", "কাস্টম টাইপের নাম":"Name des benutzerdefinierten Typs",
+    "যেমন: গেম, টেমপ্লেট, UI কিট…":"z. B. Spiele, Vorlagen, UI-Kits…", "যেমন: Wallora":"z. B. Wallora",
+    "এক লাইনের পরিচয় (tagline)":"Einzeiliges Kennwort", "সংক্ষিপ্ত বর্ণনা":"Kurze Beschreibung", "বিস্তারিত বিবরণ…":"Detaillierte Beschreibung…",
+    "ট্যাগ (কমা দিয়ে)":"Tags (durch Komma getrennt)", "বইয়ের কপি":"Buchkopie", "লেখকের নাম":"Name des Autors", "এক্সটেনশন":"Erweiterung",
+    "কীভাবে ইনস্টল করবেন…":"Wie man es installiert…", "কভার":"Cover", "কভার রঙ":"Cover-Farbe", "নিজের রঙ":"Eigene Farbe",
+    "কভার ছবির লিংক":"Cover-Bildlink", "https://… (ছবির সরাসরি লিংক)":"https://… (direktes Bild)", "ডাউনলোড ও লিংক":"Download & Links",
+    "ডাউনলোড লিংক":"Download-Link",
+    "GitHub Release-এর asset লিংক বা যেকোনো সরাসরি ফাইল লিংক দিন।":"Füge einen GitHub-Release-Asset-Link oder einen direkten Datei-Link ein.",
+    "সোর্স লিংক":"Quellen-Link", "বিস্তারিত পাতায় দেখানোর নোট…":"Notiz auf der Detailseite…", "হোমে ফিচার":"Auf Startseite hervorheben",
+    "প্রশ্নোত্তর (FAQ)":"Fragen (FAQ)", "+ নতুন প্রশ্ন":"+ Neue Frage", "প্রশ্ন":"Frage",
+    "এখনো কোনো প্রশ্ন নেই। “+ নতুন প্রশ্ন” চেপে যোগ করুন।":"Noch keine Fragen. Drücke „+ Neue Frage“.", "প্রশ্নোত্তর":"Fragen",
+    "নতুন প্রশ্ন":"Neue Frage", "প্রশ্ন সম্পাদনা":"Frage bearbeiten", "উত্তর":"Antwort",
+    "যেমন: আপনি কী কী নিয়ে কাজ করেন?":"z. B. Woran arbeitest du?", "এখানে উত্তর লিখুন…":"Antwort hier schreiben…",
+    "প্রশ্নটি মুছে ফেলবেন?":"Diese Frage löschen?",
+    "এই প্রশ্নোত্তরগুলো সাইটের কোণার ভাসমান হেল্পারে দেখাবে। এগুলো আসল AI নয়, আগে থেকে লেখা উত্তর।":"Diese Fragen erscheinen im schwebenden Helfer in der Ecke. Es sind vorab geschriebene Antworten, keine echte KI.",
+    "কোনো প্রশ্ন পাওয়া যায়নি।":"Keine Fragen gefunden.", "অন্য কিছু লিখে দেখুন।":"Versuche andere Worte.",
+    "মালিক এখনো FAQ যোগ করেননি।":"Der Besitzer hat noch keine FAQ hinzugefügt.", "যোগাযোগ মেসেজ":"Kontachtnachrichten", "রিফ্রেশ":"Aktualisieren",
+    "শুধু আপনি (মালিক) এই মেসেজ পড়তে পারবেন; সাধারণ দর্শক পাঠাতে পারবে কিন্তু কারও মেসেজ দেখতে পাবে না।":"Nur du (der Besitzer) kannst diese Nachrichten lesen; Besucher können sie senden, aber niemals die anderer sehen.",
+    "কোনো মেসেজ নেই।":"Keine Nachrichten.", "যোগাযোগ ফর্ম থেকে আসা মেসেজ এখানে দেখাবে।":"Nachrichten aus dem Kontaktformular erscheinen hier.",
+    "— কোনো স্টোর নেই —":"— keine Stores —", "সাইটের নাম":"Website-Name", "যোগাযোগের ইমেইল":"Kontakt-E-Mail",
+    "হোমের পরিচয়ের লেখা (এক/দুই লাইন)":"Identitätszeile der Startseite (ein oder zwei Zeilen)",
+    "আপনি কে, কী নিয়ে কাজ করেন…":"Wer du bist und was du baust…",
+    "খালি রাখলে হোমে এই লাইন দেখাবে না।":"Leer lassen, um diese Zeile auf der Startseite zu verbergen.",
+    "About DEEPostrophy বিভাগের লেখা":"Text für den Abschnitt About DEEPostrophy", "লক্ষ্য, দক্ষতা ও পথচলা…":"Ziele, Fähigkeiten und der Weg…",
+    "লেখা সংরক্ষণ":"Text speichern",
+    "এই লেখাটি সাইটের About DEEPostrophy বিভাগেই দেখায় — অন্য কোথাও নয়।":"Dieser Text erscheint nur im Abschnitt About DEEPostrophy — sonst nirgends.",
+    "ভাষা":"Sprache", "ডিফল্ট English; ভিজিটার নিজে বেছে নিলে সেটি মনে থাকে।":"Standard ist Englisch; die Wahl des Besuchers wird gemerkt.",
+    "অটো-ভাষা চালু":"Auto-Sprache aktivieren",
+    "ভিজিটার এখনো ভাষা বেয়ে না রাখলে তাঁর ব্রাউজারের ভাষাটি চুপচাপ প্রয়োগ হবে — কোনো প্রশ্ন বা পপআপ আসবে না।":"Hat ein Besucher noch keine Sprache gewählt, wird still die Browsersprache angewendet — ohne Frage oder Popup.",
+    "অনুবাদ (আপনার নিজের হাতে)":"Übersetzungen (per Hand)",
+    "৮টি ভাষা চালু; খালি থাকা ঘরগুলো স্বয়ংক্রিয়ভাবে English দেখায়।":"8 Sprachen aktiv; leere Felder zeigen automatisch Englisch.",
+    "ভাষা তালিকা":"Sprachliste", "প্রতিটি UI লেখার অনুবাদ":"Übersetzung jedes UI-Texts", "সোশ্যাল লিংক":"Social-Links",
+    "+ লিংক যোগ করুন":"+ Link hinzufügen",
+    "শুধু আসল লিংক দিন (https:// বা mailto: দিয়ে শুরু)।":"Nur echte Links (mit https:// oder mailto: beginnend).",
+    "লেবেল (যেমন GitHub)":"Bezeichnung (z. B. GitHub)", "সেটিংস সংরক্ষণ":"Einstellungen speichern", "সংরক্ষিত হয়েছে ✅":"Gespeichert ✅",
+    "ডেটা রপ্তানি ও আমদানি":"Daten exportieren & importieren",
+    "পুরো সাইটের ডেটা (স্টোর, আইটেম, FAQ, সেটিংস, মেসেজ) এক JSON ফাইলে সংরক্ষণ বা ফিরিয়ে আনুন।":"Speichere oder stelle die gesamte Website (Stores, Einträge, FAQ, Einstellungen, Nachrichten) als eine JSON-Datei wieder her.",
+    "⬇ JSON রপ্তানি":"⬇ JSON exportieren", "⬆ JSON আমদানি":"⬆ JSON importieren", "আমদানি সফল ✅":"Import erfolgreich ✅",
+    "ফাইল পড়া যায়নি — সঠিক JSON দিন।":"Datei konnte nicht gelesen werden — gültiges JSON angeben.", "লোকাল অ্যাডমিন পাসকোড":"Lokaler Admin-Passcode",
+    "Firebase কনফিগ বসানো না থাকলে প্যানেলে ঢুকতে এই লোকাল পাসকোড লাগে (এটি ডিফল্ট নয় — আপনি নিজে সেট করেন)। Firebase চালু হলে এটি প্রযোজ্য থাকবে না।":"Ohne Firebase-Konfiguration öffnet dieser lokale Passcode das Panel (kein Standardwert — du setzt ihn selbst). Mit aktivem Firebase gilt er nicht mehr.",
+    "নতুন পাসকোড":"Neuer Passcode", "অন্তত ৪ অক্ষর":"Mindestens 4 Zeichen", "পাসকোড সেট / বদলান":"Passcode setzen / ändern",
+    "পাসকোড অন্তত ৪ অক্ষর।":"Der Passcode braucht mindestens 4 Zeichen.", "লোকাল পাসকোড সেট হয়েছে ✅":"Lokaler Passcode gesetzt ✅", "অ্যাপ":"App",
+    "AI টুলস":"KI-Werkzeuge", "AI টুল":"KI-Werkzeug", "কালারফুল আর্টস":"Bunte Kunst", "আর্ট":"Kunst", "পাইথন এক্সটেনশন":"Python-Erweiterung",
+    "ফাইল সংরক্ষণ":"Dateispeicher", "ফাইল":"Datei", "কাস্টম":"Benutzerdefiniert", "অন্যান্য":"Sonstige", "ওয়ালপেপার":"Hintergrundbild", "ছবি":"Bild",
+    "গান":"Lied", "মুভি":"Film", "Portfolio · App Store":"Portfolio · App Store", "ওয়েলকাম টু":"Willkommen bei",
+    "আমি অ্যাপ, AI টুল আর ডিজাইন বানাই — পরিষ্কার, দ্রুত আর দেখতে সুন্দর।":"Ich baue Apps, KI-Werkzeuge und Design — sauber, schnell und schön.",
+    "যোগাযোগ করুন":"Kontakt aufnehmen", "আর্ট ও ডিজাইন":"Kunst & Design", "পাইথন":"Python",
+    "পরিষ্কার UI ও দ্রুত অভিজ্ঞতা":"Saubere UI, schnelle Erfahrung", "AI দিয়ে বাস্তব সমাধান":"Echte Lösungen mit KI",
+    "রঙিন, চোখে জমে এমন কাজ":"Bunte Arbeit, ins Auge fallend", "প্র্যাকটিক্যাল স্ক্রিপ্ট ও টুল":"Praktische Skripte & Tools" , "পরিসংখ্যান ও রিঅ্যাকশন":"Statistik & Reaktionen", "মোট ডাউনলোড":"Downloads gesamt", "সেভ":"Speicherungen", "রিঅ্যাকশন":"Reaktionen", "এখনো কোনো রিঅ্যাকশন নেই।":"Noch keine Reaktionen.", "আপনিও প্রথম রিঅ্যাকশন দিতে পারেন।":"Sei der Erste, der reagiert.", "রিঅ্যাকশন দিতে লগ-ইন করুন।":"Melde dich an, um zu reagieren.", "ধন্যবাদ, রিঅ্যাকশন যোগ হয়েছে!":"Danke, deine Reaktion wurde hinzugefügt!", "প্রথম রিঅ্যাকশন দিন":"Erste Reaktion hinzufügen", "আপনার রিঅ্যাকশন":"Deine Reaktion", "প্লে":"Spielen", "নতুন ট্যাবে খুলুন":"In neuem Tab öffnen", "লোড হচ্ছে…":"Wird geladen…", "ফুল স্ক্রিন":"Vollbild", "বন্ধ করুন":"Schließen" },
+  ja: {"মেনু":"メニュー", "হোম":"ホーム", "যোগাযোগ":"お問い合わせ", "সাইট দেখুন":"サイトを見る", "স্টোর দেখুন":"ストアを見る", "হোমে ফিরুন":"ホームへ戻る", "← হোমে ফিরুন":"← ホームへ戻る",
+    "← স্টোরে ফিরুন":"← ストアへ戻る", "সাহায্য":"ヘルプ", "সাহায্য ও প্রশ্নোত্তর":"ヘルプとよくある質問", "প্রশ্ন খুঁজুন…":"質問を検索…", "ভাষা বদলান":"言語を変更",
+    "ভাষা খুঁজুন…":"言語を検索…", "কোনো ভাষা মেলেনি":"該当する言語がありません", "শব্দ চালু":"音オン", "শব্দ বন্ধ":"音オフ",
+    "এই সাইট এখন <b>localStorage</b> মোডে চলছে। Firebase কনফিগ বসালেই Firestore/Auth-এ চলে যাবে।":"このサイトは現在<b>localStorage</b>モードで動作しています。Firebase設定を追加するとFirestore/Authに切り替わります.",
+    "Firebase মোড সক্রিয়। সব ভিজিটর প্রকাশিত কন্টেন্ট দেখবেন।":"Firebaseモードが有効です。すべての訪問者が公開コンテンツを見られます.", "FIREBASE":"FIREBASE", "LOCAL":"LOCAL",
+    "ফিচারড আইটেম":"注目のアイテム", "স্টোরগুলোর বাছাই করা কাজ।":"ストアから厳選した作品.", "স্টোর":"ストア", "স্টোর:":"ストア：", "{label} স্টোর":"{label}ストア",
+    "প্রতিটি স্টোরে নিজস্ব ধরনের আইটেম সাজানো থাকে।":"各ストアには独自の種類のアイテムが並びます.", "এখনো কোনো স্টোর যোগ করা হয়নি।":"まだストアが追加されていません.",
+    "কন্ট্রোল প্যানেল থেকে আপনার প্রথম স্টোর তৈরি করুন — তারপর ভেতরে আইটেম বসান।":"コントロールパネルで最初のストアを作成し、中にアイテムを追加してください.",
+    "কন্ট্রোল প্যানেল খুলুন":"コントロールパネルを開く", "কন্ট্রোল প্যানেল":"コントロールパネル", "নাম, বিবরণ বা ট্যাগ খুঁজুন…":"名前・説明・タグを検索…", "ধরন":"種類", "আইটেম":"アイテム",
+    "টি আইটেম":"点のアイテム", "{n}টি আইটেম":"{n}点のアイテム", "আইটেম · {n}টি":"アイテム · {n}点", "এই স্টোরে এখনো কিছু যোগ করা হয়নি।":"このストアにはまだ何も追加されていません.",
+    "কন্ট্রোল প্যানেল থেকে আইটেম যোগ করুন।":"コントロールパネルからアイテムを追加してください.", "কোনো ধরন নেই।":"種類がまだありません.", "★ ফিচারড":"★ 注目", "খসড়া":"下書き", "খুলুন":"開く",
+    "সোর্স":"ソース", "ডাউনলোড":"ダウンロード", "সোর্স কোড":"ソースコード", "লিংক ও ডাউনলোড":"リンクとダウンロード", "তথ্য":"詳細", "বিবরণ":"説明", "ইনস্টল নির্দেশ":"インストール手順",
+    "README":"README", "লিংক":"リンク", "এই আইটেমের কোনো লিংক যোগ করা হয়নি।":"このアイテムにはリンクが追加されていません.",
+    "আইটেমটি পাওয়া যায়নি বা প্রকাশিত নয়।":"アイテムが見つからないか、公開されていません.", "লেখক":"著者", "বছর":"年", "পরিচয়":"紹介", "সংযোগ":"つながる",
+    "কোনো প্রজেক্ট, সহযোগিতা বা প্রশ্ন থাকলে লিখুন।":"プロジェクト・協業・ご質問があればお気軽にどうぞ.", "নাম":"お名前", "আপনার নাম":"あなたの名前", "ইমেইল":"メール",
+    "আপনার ইমেইল":"あなたのメールアドレス", "মেসেজ":"メッセージ", "কী জানাতে চান…":"伝えたいこと…", "পাঠান":"送信", "সরাসরি লিংক":"直接リンク",
+    "যোগাযোগের লিংক যোগ করা হয়নি।":"連絡先リンクがまだ追加されていません.",
+    "কন্ট্রোল প্যানেল → সাইট সেটিংস থেকে ইমেইল ও সোশ্যাল লিংক দিন।":"コントロールパネル → サイト設定でメールとSNSリンクを追加してください.",
+    "এই বিভাগে এখনো লেখা যোগ করা হয়নি।":"このセクションにはまだ文章がありません.", "আপনার নাম সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"お名前は最大100文字までにしてください.",
+    "ইমেইল দিন।":"メールアドレスを入力してください.", "ইমেইল সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"メールアドレスは最大100文字までにしてください.",
+    "সঠিক ইমেইল ঠিকানা দিন (@ সহ)।":"有効なメールアドレス（@を含む）を入力してください.", "মেসেজ লিখুন।":"メッセージを入力してください.",
+    "মেসেজ সর্বোচ্চ ২০০০ অক্ষরের হতে পারে।":"メッセージは最大2000文字です.", "ধন্যবাদ! মেসেজটি পাঠানো হয়েছে।":"ありがとうございます！送信しました.",
+    "পাঠানো যায়নি: {msg}":"送信できませんでした: {msg}", "এই ঠিকানায় কিছু নেই।":"このアドレスには何もありません.", "মালিকের জন্য সুরক্ষিত এলাকা":"オーナー専用エリア",
+    "অ্যাডমিন লগইন":"管理者ログイン", "শুধু মালিক স্টোর, আইটেম ও সেটিংস নিয়ন্ত্রণ করতে পারবেন।":"ストア・アイテム・設定を管理できるのはオーナーだけです.", "পাসওয়ার্ড":"パスワード",
+    "প্রবেশ করুন":"ログイン", "প্রবেশ":"入る", "শুধু মালিকই এখানে ঢুকতে পারবেন।":"ここに入れるのはオーナーだけです.", "পাসকোড":"パスコード",
+    "নতুন পাসকোড সেট করুন (৪+ অক্ষর)":"新しいパスコードを設定（4文字以上）", "আপনি মালিক নন।":"あなたはオーナーではありません.", "লগইন ব্যর্থ।":"ログインに失敗しました.",
+    "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।":"接続で問題が発生しました。もう一度お試しください.",
+    "ইমেইল যাচাই করুন। আপনার ইনবক্সে পাঠানো লিংকে ক্লিক করুন।":"メールを確認し、受信トレイのリンクをクリックしてください.", "যাচাই-লিংক আবার পাঠান":"確認リンクを再送",
+    "পাঠানো হচ্ছে…":"送信中…",
+    "যাচাই-লিংক পাঠানো হয়েছে ✅ ইনবক্স (না-থাকলে স্প্যাম) দেখুন, লিংকে ক্লিক করুন, তারপর আবার লগইন করুন।":"確認リンクを送信しました ✅ 受信トレイ（なければ迷惑メール）を確認し、リンクをクリックしてから再ログインしてください.",
+    "ভুল পাসকোড।":"パスコードが違います.", "পাসকোড অন্তত ৪ অক্ষরের দিন।":"4文字以上のパスコードを入力してください.", "সাইট ব্যবস্থাপনা":"サイト管理", "লগআউট":"ログアウト",
+    "সাইট সেটিংস":"サイト設定", "ডেটা":"データ", "FAQ":"FAQ", "ক্রম":"並び順", "প্রকাশ":"公開", "অ্যাকশন":"操作", "সম্পাদনা":"編集", "মুছুন":"削除", "সংরক্ষণ":"保存",
+    "বাতিল":"キャンセル", "প্রকাশিত":"公開済み", "ফিচার":"注目", "স্টোর ব্যবস্থাপনা":"ストア管理", "+ নতুন স্টোর":"+ 新規ストア",
+    "↑ ↓ দিয়ে ক্রম বদলান। “প্রকাশ” বন্ধ থাকলে স্টোরটি সাইটে দেখাবে না। স্টোর মুছলে তার ভেতরের সব আইটেমও মুছে যাবে।":"↑ ↓ で並び順を変更します。「公開」がオフのストアはサイトに表示されません。ストアを削除すると中身のアイテムもすべて削除されます.",
+    "এখনো কোনো স্টোর নেই। “+ নতুন স্টোর” চেপে শুরু করুন।":"まだストアがありません。「+ 新規ストア」を押して開始してください.",
+    "“{name}” স্টোরটি মুছে ফেলবেন? ভেতরের সব আইটেমও মুছে যাবে।":"ストア「{name}」を削除しますか？中のアイテムもすべて削除されます.", "স্টোর সম্পাদনা":"ストア編集", "নতুন স্টোর":"新規ストア",
+    "আইকন (একটি ইমোজি/অক্ষর)":"アイコン（絵文字または1文字）", "যেমন 📱":"例：📱", "এই স্টোরে কী কী থাকে…":"このストアの内容…", "যেমন: আমার অ্যাপসমূহ":"例：マイアプリ",
+    "+ নতুন আইটেম":"+ 新規アイテム", "প্রথমে একটি স্টোর তৈরি করুন।":"最初にストアを作成してください.",
+    "আইটেম সবসময় কোনো না কোনো স্টোরের ভেতরে থাকে।":"アイテムは必ずいずれかのストアの中にあります.",
+    "“হোমে ফিচার” দিলে আইটেমটি হোমের ফিচারড সেকশনে দেখাবে। বইয়ের কপির জন্য লেখক/বছর, এক্সটেনশনের জন্য ইনস্টল নির্দেশ ফিল্ড ভরে দিন।":"「ホームで注目」にするとアイテムがホームの注目セクションに表示されます。書籍コピーは著者／年、拡張機能はインストール手順を入力してください.",
+    "এই স্টোরে এখনো আইটেম নেই। “+ নতুন আইটেম” চেপে যোগ করুন।":"このストアにはまだアイテムがありません。「+ 新規アイテム」を押して追加してください.",
+    "“{name}” আইটেমটি মুছে ফেলবেন?":"アイテム「{name}」を削除しますか？", "আইটেম সম্পাদনা":"アイテム編集", "নতুন আইটেম":"新規アイテム", "ধরন (type)":"カテゴリ",
+    "কাস্টম টাইপের নাম":"カスタム種類の名称", "যেমন: গেম, টেমপ্লেট, UI কিট…":"例：ゲーム、テンプレート、UIキット…", "যেমন: Wallora":"例：Wallora",
+    "এক লাইনের পরিচয় (tagline)":"一行の紹介文", "সংক্ষিপ্ত বর্ণনা":"短い説明", "বিস্তারিত বিবরণ…":"詳しい説明…", "ট্যাগ (কমা দিয়ে)":"タグ（カンマ区切り）",
+    "বইয়ের কপি":"書籍コピー", "লেখকের নাম":"著者名", "এক্সটেনশন":"拡張機能", "কীভাবে ইনস্টল করবেন…":"インストール方法…", "কভার":"カバー", "কভার রঙ":"カバーのカラー",
+    "নিজের রঙ":"カスタムカラー", "কভার ছবির লিংক":"カバー画像のリンク", "https://… (ছবির সরাসরি লিংক)":"https://…（画像の直接リンク）", "ডাউনলোড ও লিংক":"ダウンロードとリンク",
+    "ডাউনলোড লিংক":"ダウンロードリンク", "GitHub Release-এর asset লিংক বা যেকোনো সরাসরি ফাইল লিংক দিন।":"GitHub Releaseのアセットリンク、または任意の直接ファイルリンクを貼り付けてください.",
+    "সোর্স লিংক":"ソースリンク", "বিস্তারিত পাতায় দেখানোর নোট…":"詳細ページに表示するメモ…", "হোমে ফিচার":"ホームで注目", "প্রশ্নোত্তর (FAQ)":"よくある質問（FAQ）",
+    "+ নতুন প্রশ্ন":"+ 新規質問", "প্রশ্ন":"質問", "এখনো কোনো প্রশ্ন নেই। “+ নতুন প্রশ্ন” চেপে যোগ করুন।":"まだ質問がありません。「+ 新規質問」を押して追加してください.",
+    "প্রশ্নোত্তর":"よくある質問", "নতুন প্রশ্ন":"新規質問", "প্রশ্ন সম্পাদনা":"質問を編集", "উত্তর":"回答", "যেমন: আপনি কী কী নিয়ে কাজ করেন?":"例：どんな仕事をしていますか？",
+    "এখানে উত্তর লিখুন…":"ここに回答を書く…", "প্রশ্নটি মুছে ফেলবেন?":"この質問を削除しますか？",
+    "এই প্রশ্নোত্তরগুলো সাইটের কোণার ভাসমান হেল্পারে দেখাবে। এগুলো আসল AI নয়, আগে থেকে লেখা উত্তর।":"これらの質問はサイト隅のフローティングヘルパーに表示されます。本物のAIではなく、あらかじめ書かれた回答です.",
+    "কোনো প্রশ্ন পাওয়া যায়নি।":"質問が見つかりませんでした.", "অন্য কিছু লিখে দেখুন।":"別の言葉でお試しください.", "মালিক এখনো FAQ যোগ করেননি।":"オーナーはまだFAQを追加していません.",
+    "যোগাযোগ মেসেজ":"お問い合わせメッセージ", "রিফ্রেশ":"更新",
+    "শুধু আপনি (মালিক) এই মেসেজ পড়তে পারবেন; সাধারণ দর্শক পাঠাতে পারবে কিন্তু কারও মেসেজ দেখতে পাবে না।":"読めるのはあなた（オーナー）だけです。訪問者は送信できますが、誰もメッセージを見られません.",
+    "কোনো মেসেজ নেই।":"メッセージはありません.", "যোগাযোগ ফর্ম থেকে আসা মেসেজ এখানে দেখাবে।":"お問い合わせフォームからのメッセージがここに表示されます.", "— কোনো স্টোর নেই —":"— ストアなし —",
+    "সাইটের নাম":"サイト名", "যোগাযোগের ইমেইল":"連絡先メール", "হোমের পরিচয়ের লেখা (এক/দুই লাইন)":"ホームの紹介文（1〜2行）", "আপনি কে, কী নিয়ে কাজ করেন…":"あなた自身と作るもの…",
+    "খালি রাখলে হোমে এই লাইন দেখাবে না।":"空にするとホームにこの行は表示されません.", "About DEEPostrophy বিভাগের লেখা":"About DEEPostrophyセクションの文章",
+    "লক্ষ্য, দক্ষতা ও পথচলা…":"目標・スキル・歩み…", "লেখা সংরক্ষণ":"文章を保存",
+    "এই লেখাটি সাইটের About DEEPostrophy বিভাগেই দেখায় — অন্য কোথাও নয়।":"この文章はサイトのAbout DEEPostrophyセクションにのみ表示されます.", "ভাষা":"言語",
+    "ডিফল্ট English; ভিজিটার নিজে বেছে নিলে সেটি মনে থাকে।":"既定は英語。訪問者が選んだ言語は記憶されます.", "অটো-ভাষা চালু":"自動言語を有効化",
+    "ভিজিটার এখনো ভাষা বেয়ে না রাখলে তাঁর ব্রাউজারের ভাষাটি চুপচাপ প্রয়োগ হবে — কোনো প্রশ্ন বা পপআপ আসবে না।":"訪問者がまだ言語を選んでいなければ、ブラウザの言語が静かに適用されます。質問もポップアップも出ません.",
+    "অনুবাদ (আপনার নিজের হাতে)":"翻訳（手作業）", "৮টি ভাষা চালু; খালি থাকা ঘরগুলো স্বয়ংক্রিয়ভাবে English দেখায়।":"8言語が有効。空の欄は自動的に英語を表示します.",
+    "ভাষা তালিকা":"言語一覧", "প্রতিটি UI লেখার অনুবাদ":"UI文言の翻訳", "সোশ্যাল লিংক":"SNSリンク", "+ লিংক যোগ করুন":"+ リンクを追加",
+    "শুধু আসল লিংক দিন (https:// বা mailto: দিয়ে শুরু)।":"実際のリンクのみ（https://かmailto:で始まるもの）.", "লেবেল (যেমন GitHub)":"ラベル（例：GitHub）",
+    "সেটিংস সংরক্ষণ":"設定を保存", "সংরক্ষিত হয়েছে ✅":"保存しました ✅", "ডেটা রপ্তানি ও আমদানি":"データのエクスポートとインポート",
+    "পুরো সাইটের ডেটা (স্টোর, আইটেম, FAQ, সেটিংস, মেসেজ) এক JSON ফাইলে সংরক্ষণ বা ফিরিয়ে আনুন।":"サイト全体（ストア、アイテム、FAQ、設定、メッセージ）をJSONファイル1つで保存・復元します.",
+    "⬇ JSON রপ্তানি":"⬇ JSONを書き出す", "⬆ JSON আমদানি":"⬆ JSONを読み込む", "আমদানি সফল ✅":"読み込み成功 ✅",
+    "ফাইল পড়া যায়নি — সঠিক JSON দিন।":"ファイルを読み取れませんでした。正しいJSONを指定してください.", "লোকাল অ্যাডমিন পাসকোড":"ローカル管理者パスコード",
+    "Firebase কনফিগ বসানো না থাকলে প্যানেলে ঢুকতে এই লোকাল পাসকোড লাগে (এটি ডিফল্ট নয় — আপনি নিজে সেট করেন)। Firebase চালু হলে এটি প্রযোজ্য থাকবে না।":"Firebase設定がない場合、このローカルパスコードでパネルに入ります（既定値ではなく自分で設定します）。Firebase有効後は適用されません.",
+    "নতুন পাসকোড":"新しいパスコード", "অন্তত ৪ অক্ষর":"4文字以上", "পাসকোড সেট / বদলান":"パスコードを設定／変更", "পাসকোড অন্তত ৪ অক্ষর।":"パスコードは4文字以上必要です.",
+    "লোকাল পাসকোড সেট হয়েছে ✅":"ローカルパスコードを設定しました ✅", "অ্যাপ":"アプリ", "AI টুলস":"AIツール", "AI টুল":"AIツール", "কালারফুল আর্টস":"カラフルなアート", "আর্ট":"アート",
+    "পাইথন এক্সটেনশন":"Python拡張機能", "ফাইল সংরক্ষণ":"ファイル保存", "ফাইল":"ファイル", "কাস্টম":"カスタム", "অন্যান্য":"その他", "ওয়ালপেপার":"壁紙", "ছবি":"画像",
+    "গান":"音楽", "মুভি":"映像", "Portfolio · App Store":"Portfolio · App Store", "ওয়েলকাম টু":"ようこそ",
+    "আমি অ্যাপ, AI টুল আর ডিজাইন বানাই — পরিষ্কার, দ্রুত আর দেখতে সুন্দর।":"アプリ・AIツール・デザインを作ります — クリーンで高速、見た目も美しく.", "যোগাযোগ করুন":"お問い合わせ",
+    "আর্ট ও ডিজাইন":"アートとデザイン", "পাইথন":"Python", "পরিষ্কার UI ও দ্রুত অভিজ্ঞতা":"クリーンなUIと高速な体験", "AI দিয়ে বাস্তব সমাধান":"AIによる実践的な解決",
+    "রঙিন, চোখে জমে এমন কাজ":"目を引くカラフルな作品", "প্র্যাকটিক্যাল স্ক্রিপ্ট ও টুল":"実用的なスクリプトとツール" , "পরিসংখ্যান ও রিঅ্যাকশন":"統計とリアクション", "মোট ডাউনলোড":"総ダウンロード数", "সেভ":"保存数", "রিঅ্যাকশন":"リアクション", "এখনো কোনো রিঅ্যাকশন নেই।":"リアクションはまだありません。", "আপনিও প্রথম রিঅ্যাকশন দিতে পারেন।":"最初にリアクションしてみましょう。", "রিঅ্যাকশন দিতে লগ-ইন করুন।":"リアクションするにはログインしてください。", "ধন্যবাদ, রিঅ্যাকশন যোগ হয়েছে!":"ありがとう、リアクションを追加しました！", "প্রথম রিঅ্যাকশন দিন":"最初のリアクション", "আপনার রিঅ্যাকশন":"あなたのリアクション", "প্লে":"プレイ", "নতুন ট্যাবে খুলুন":"新しいタブで開く", "লোড হচ্ছে…":"読み込み中…", "ফুল স্ক্রিন":"全画面", "বন্ধ করুন":"閉じる" },
+  fr: {"মেনু":"Menu", "হোম":"Accueil", "যোগাযোগ":"Contact", "সাইট দেখুন":"Voir le site", "স্টোর দেখুন":"Parcourir la boutique",
+    "হোমে ফিরুন":"Retour à l'accueil", "← হোমে ফিরুন":"← Retour à l'accueil", "← স্টোরে ফিরুন":"← Retour à la boutique", "সাহায্য":"Aide",
+    "সাহায্য ও প্রশ্নোত্তর":"Aide et FAQ", "প্রশ্ন খুঁজুন…":"Rechercher une question…", "ভাষা বদলান":"Changer de langue",
+    "ভাষা খুঁজুন…":"Rechercher une langue…", "কোনো ভাষা মেলেনি":"Aucune langue ne correspond", "শব্দ চালু":"Son activé", "শব্দ বন্ধ":"Son désactivé",
+    "এই সাইট এখন <b>localStorage</b> মোডে চলছে। Firebase কনফিগ বসালেই Firestore/Auth-এ চলে যাবে।":"Ce site fonctionne en mode <b>localStorage</b>. Ajoutez la configuration Firebase pour passer à Firestore/Auth.",
+    "Firebase মোড সক্রিয়। সব ভিজিটর প্রকাশিত কন্টেন্ট দেখবেন।":"Mode Firebase actif. Tous les visiteurs voient vos contenus publiés.",
+    "FIREBASE":"FIREBASE", "LOCAL":"LOCAL", "ফিচারড আইটেম":"Éléments en vedette", "স্টোরগুলোর বাছাই করা কাজ।":"Une sélection des boutiques.",
+    "স্টোর":"Boutique", "স্টোর:":"Boutique :", "{label} স্টোর":"Boutique {label}",
+    "প্রতিটি স্টোরে নিজস্ব ধরনের আইটেম সাজানো থাকে।":"Chaque boutique contient des éléments de son propre type.",
+    "এখনো কোনো স্টোর যোগ করা হয়নি।":"Aucune boutique n'a encore été ajoutée.",
+    "কন্ট্রোল প্যানেল থেকে আপনার প্রথম স্টোর তৈরি করুন — তারপর ভেতরে আইটেম বসান।":"Créez votre première boutique dans le panneau de contrôle, puis ajoutez-y des éléments.",
+    "কন্ট্রোল প্যানেল খুলুন":"Ouvrir le panneau de contrôle", "কন্ট্রোল প্যানেল":"Panneau de contrôle",
+    "নাম, বিবরণ বা ট্যাগ খুঁজুন…":"Rechercher nom, description ou tag…", "ধরন":"Type", "আইটেম":"Élément", "টি আইটেম":"éléments",
+    "{n}টি আইটেম":"{n} éléments", "আইটেম · {n}টি":"Éléments · {n}",
+    "এই স্টোরে এখনো কিছু যোগ করা হয়নি।":"Rien n'a encore été ajouté à cette boutique.",
+    "কন্ট্রোল প্যানেল থেকে আইটেম যোগ করুন।":"Ajoutez des éléments depuis le panneau de contrôle.", "কোনো ধরন নেই।":"Aucun type pour l'instant.",
+    "★ ফিচারড":"★ En vedette", "খসড়া":"Brouillon", "খুলুন":"Ouvrir", "সোর্স":"Source", "ডাউনলোড":"Télécharger", "সোর্স কোড":"Code source",
+    "লিংক ও ডাউনলোড":"Liens et téléchargement", "তথ্য":"Détails", "বিবরণ":"Description", "ইনস্টল নির্দেশ":"Étapes d'installation", "README":"README",
+    "লিংক":"Lien", "এই আইটেমের কোনো লিংক যোগ করা হয়নি।":"Aucun lien n'a été ajouté pour cet élément.",
+    "আইটেমটি পাওয়া যায়নি বা প্রকাশিত নয়।":"Cet élément est introuvable ou n'est pas publié.", "লেখক":"Auteur", "বছর":"Année", "পরিচয়":"Identité",
+    "সংযোগ":"Connecter", "কোনো প্রজেক্ট, সহযোগিতা বা প্রশ্ন থাকলে লিখুন।":"Écrivez-moi pour un projet, une collaboration ou une question.",
+    "নাম":"Nom", "আপনার নাম":"Votre nom", "ইমেইল":"E-mail", "আপনার ইমেইল":"Votre e-mail", "মেসেজ":"Message",
+    "কী জানাতে চান…":"Que souhaitez-vous partager…", "পাঠান":"Envoyer", "সরাসরি লিংক":"Liens directs",
+    "যোগাযোগের লিংক যোগ করা হয়নি।":"Aucun lien de contact n'a été ajouté.",
+    "কন্ট্রোল প্যানেল → সাইট সেটিংস থেকে ইমেইল ও সোশ্যাল লিংক দিন।":"Ajoutez e-mail et liens sociaux dans Panneau → Paramètres du site.",
+    "এই বিভাগে এখনো লেখা যোগ করা হয়নি।":"Aucun texte n'a encore été ajouté à cette section.",
+    "আপনার নাম সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"Votre nom doit contenir au maximum 100 caractères.", "ইমেইল দিন।":"Veuillez saisir votre e-mail.",
+    "ইমেইল সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"L'e-mail doit contenir au maximum 100 caractères.",
+    "সঠিক ইমেইল ঠিকানা দিন (@ সহ)।":"Saisissez une adresse e-mail valide (avec @).", "মেসেজ লিখুন।":"Veuillez écrire un message.",
+    "মেসেজ সর্বোচ্চ ২০০০ অক্ষরের হতে পারে।":"Le message peut contenir au maximum 2000 caractères.",
+    "ধন্যবাদ! মেসেজটি পাঠানো হয়েছে।":"Merci ! Votre message a été envoyé.", "পাঠানো যায়নি: {msg}":"Envoi impossible : {msg}",
+    "এই ঠিকানায় কিছু নেই।":"Rien à cette adresse.", "মালিকের জন্য সুরক্ষিত এলাকা":"Espace sécurisé pour le propriétaire",
+    "অ্যাডমিন লগইন":"Connexion admin",
+    "শুধু মালিক স্টোর, আইটেম ও সেটিংস নিয়ন্ত্রণ করতে পারবেন।":"Seul le propriétaire gère les boutiques, éléments et paramètres.",
+    "পাসওয়ার্ড":"Mot de passe", "প্রবেশ করুন":"Se connecter", "প্রবেশ":"Entrer",
+    "শুধু মালিকই এখানে ঢুকতে পারবেন।":"Seul le propriétaire peut se connecter ici.", "পাসকোড":"Code secret",
+    "নতুন পাসকোড সেট করুন (৪+ অক্ষর)":"Définir un nouveau code (4+ caractères)", "আপনি মালিক নন।":"Vous n'êtes pas le propriétaire.",
+    "লগইন ব্যর্থ।":"Échec de connexion.", "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।":"Problème de connexion. Réessayez.",
+    "ইমেইল যাচাই করুন। আপনার ইনবক্সে পাঠানো লিংকে ক্লিক করুন।":"Vérifiez votre e-mail. Cliquez sur le lien envoyé dans votre boîte de réception.",
+    "যাচাই-লিংক আবার পাঠান":"Renvoyer le lien de vérification", "পাঠানো হচ্ছে…":"Envoi en cours…",
+    "যাচাই-লিংক পাঠানো হয়েছে ✅ ইনবক্স (না-থাকলে স্প্যাম) দেখুন, লিংকে ক্লিক করুন, তারপর আবার লগইন করুন।":"Lien de vérification envoyé ✅ Consultez la boîte (et les indésirables), cliquez sur le lien, puis reconnectez-vous.",
+    "ভুল পাসকোড।":"Code incorrect.", "পাসকোড অন্তত ৪ অক্ষরের দিন।":"Saisissez un code d'au moins 4 caractères.", "সাইট ব্যবস্থাপনা":"Gestion du site",
+    "লগআউট":"Se déconnecter", "সাইট সেটিংস":"Paramètres du site", "ডেটা":"Données", "FAQ":"FAQ", "ক্রম":"Ordre", "প্রকাশ":"Publier",
+    "অ্যাকশন":"Actions", "সম্পাদনা":"Modifier", "মুছুন":"Supprimer", "সংরক্ষণ":"Enregistrer", "বাতিল":"Annuler", "প্রকাশিত":"Publié",
+    "ফিচার":"En vedette", "স্টোর ব্যবস্থাপনা":"Gestion des boutiques", "+ নতুন স্টোর":"+ Nouvelle boutique",
+    "↑ ↓ দিয়ে ক্রম বদলান। “প্রকাশ” বন্ধ থাকলে স্টোরটি সাইটে দেখাবে না। স্টোর মুছলে তার ভেতরের সব আইটেমও মুছে যাবে।":"Utilisez ↑ ↓ pour changer l'ordre. Une boutique avec « Publier » désactivé reste masquée. Supprimer une boutique supprime aussi tous ses éléments.",
+    "এখনো কোনো স্টোর নেই। “+ নতুন স্টোর” চেপে শুরু করুন।":"Aucune boutique pour l'instant. Appuyez sur « + Nouvelle boutique ».",
+    "“{name}” স্টোরটি মুছে ফেলবেন? ভেতরের সব আইটেমও মুছে যাবে।":"Supprimer la boutique « {name} » ? Tous ses éléments seront aussi supprimés.",
+    "স্টোর সম্পাদনা":"Modifier la boutique", "নতুন স্টোর":"Nouvelle boutique", "আইকন (একটি ইমোজি/অক্ষর)":"Icône (un emoji ou une lettre)",
+    "যেমন 📱":"ex. 📱", "এই স্টোরে কী কী থাকে…":"Ce que contient cette boutique…", "যেমন: আমার অ্যাপসমূহ":"ex. Mes applis",
+    "+ নতুন আইটেম":"+ Nouvel élément", "প্রথমে একটি স্টোর তৈরি করুন।":"Créez d'abord une boutique.",
+    "আইটেম সবসময় কোনো না কোনো স্টোরের ভেতরে থাকে।":"Les éléments vivent toujours dans une boutique.",
+    "“হোমে ফিচার” দিলে আইটেমটি হোমের ফিচারড সেকশনে দেখাবে। বইয়ের কপির জন্য লেখক/বছর, এক্সটেনশনের জন্য ইনস্টল নির্দেশ ফিল্ড ভরে দিন।":"« Mettre en avant » affiche l'élément dans la section vedette. Pour une copie de livre remplissez auteur/année ; pour une extension, les étapes d'installation.",
+    "এই স্টোরে এখনো আইটেম নেই। “+ নতুন আইটেম” চেপে যোগ করুন।":"Aucun élément dans cette boutique. Appuyez sur « + Nouvel élément ».",
+    "“{name}” আইটেমটি মুছে ফেলবেন?":"Supprimer l'élément « {name} » ?", "আইটেম সম্পাদনা":"Modifier l'élément", "নতুন আইটেম":"Nouvel élément",
+    "ধরন (type)":"Catégorie", "কাস্টম টাইপের নাম":"Nom du type personnalisé", "যেমন: গেম, টেমপ্লেট, UI কিট…":"ex. Jeux, Modèles, Kits UI…",
+    "যেমন: Wallora":"ex. Wallora", "এক লাইনের পরিচয় (tagline)":"Accroche en une ligne", "সংক্ষিপ্ত বর্ণনা":"Description courte",
+    "বিস্তারিত বিবরণ…":"Description détaillée…", "ট্যাগ (কমা দিয়ে)":"Tags (séparés par des virgules)", "বইয়ের কপি":"Copie du livre",
+    "লেখকের নাম":"Nom de l'auteur", "এক্সটেনশন":"Extension", "কীভাবে ইনস্টল করবেন…":"Comment l'installer…", "কভার":"Couverture",
+    "কভার রঙ":"Couleur de couverture", "নিজের রঙ":"Couleur personnalisée", "কভার ছবির লিংক":"Lien de l'image de couverture",
+    "https://… (ছবির সরাসরি লিংক)":"https://… (lien direct de l'image)", "ডাউনলোড ও লিংক":"Téléchargement et liens",
+    "ডাউনলোড লিংক":"Lien de téléchargement",
+    "GitHub Release-এর asset লিংক বা যেকোনো সরাসরি ফাইল লিংক দিন।":"Collez un lien d'asset GitHub Release ou tout lien direct de fichier.",
+    "সোর্স লিংক":"Lien source", "বিস্তারিত পাতায় দেখানোর নোট…":"Note affichée sur la page de détail…", "হোমে ফিচার":"Mettre en avant",
+    "প্রশ্নোত্তর (FAQ)":"Questions (FAQ)", "+ নতুন প্রশ্ন":"+ Nouvelle question", "প্রশ্ন":"Question",
+    "এখনো কোনো প্রশ্ন নেই। “+ নতুন প্রশ্ন” চেপে যোগ করুন।":"Aucune question pour l'instant. Appuyez sur « + Nouvelle question ».",
+    "প্রশ্নোত্তর":"Questions", "নতুন প্রশ্ন":"Nouvelle question", "প্রশ্ন সম্পাদনা":"Modifier la question", "উত্তর":"Réponse",
+    "যেমন: আপনি কী কী নিয়ে কাজ করেন?":"ex. Sur quoi travaillez-vous ?", "এখানে উত্তর লিখুন…":"Écrivez la réponse ici…",
+    "প্রশ্নটি মুছে ফেলবেন?":"Supprimer cette question ?",
+    "এই প্রশ্নোত্তরগুলো সাইটের কোণার ভাসমান হেল্পারে দেখাবে। এগুলো আসল AI নয়, আগে থেকে লেখা উত্তর।":"Ces questions apparaissent dans l'assistant flottant du coin. Ce sont des réponses préécrites, pas une vraie IA.",
+    "কোনো প্রশ্ন পাওয়া যায়নি।":"Aucune question trouvée.", "অন্য কিছু লিখে দেখুন।":"Essayez d'autres mots.",
+    "মালিক এখনো FAQ যোগ করেননি।":"Le propriétaire n'a pas encore ajouté de FAQ.", "যোগাযোগ মেসেজ":"Messages de contact", "রিফ্রেশ":"Rafraîchir",
+    "শুধু আপনি (মালিক) এই মেসেজ পড়তে পারবেন; সাধারণ দর্শক পাঠাতে পারবে কিন্তু কারও মেসেজ দেখতে পাবে না।":"Vous seul (le propriétaire) pouvez lire ces messages ; les visiteurs peuvent les envoyer mais ne voient jamais ceux des autres.",
+    "কোনো মেসেজ নেই।":"Aucun message.", "যোগাযোগ ফর্ম থেকে আসা মেসেজ এখানে দেখাবে।":"Les messages du formulaire de contact apparaissent ici.",
+    "— কোনো স্টোর নেই —":"— aucune boutique —", "সাইটের নাম":"Nom du site", "যোগাযোগের ইমেইল":"E-mail de contact",
+    "হোমের পরিচয়ের লেখা (এক/দুই লাইন)":"Ligne d'identité de l'accueil (une ou deux lignes)",
+    "আপনি কে, কী নিয়ে কাজ করেন…":"Qui vous êtes et ce que vous créez…",
+    "খালি রাখলে হোমে এই লাইন দেখাবে না।":"Laissez vide pour masquer cette ligne sur l'accueil.",
+    "About DEEPostrophy বিভাগের লেখা":"Texte de la section About DEEPostrophy", "লক্ষ্য, দক্ষতা ও পথচলা…":"Objectifs, compétences et parcours…",
+    "লেখা সংরক্ষণ":"Enregistrer le texte",
+    "এই লেখাটি সাইটের About DEEPostrophy বিভাগেই দেখায় — অন্য কোথাও নয়।":"Ce texte n'apparaît que dans la section About DEEPostrophy du site — nulle part ailleurs.",
+    "ভাষা":"Langue", "ডিফল্ট English; ভিজিটার নিজে বেছে নিলে সেটি মনে থাকে।":"Par défaut anglais ; le choix du visiteur est mémorisé.",
+    "অটো-ভাষা চালু":"Activer la langue auto",
+    "ভিজিটার এখনো ভাষা বেয়ে না রাখলে তাঁর ব্রাউজারের ভাষাটি চুপচাপ প্রয়োগ হবে — কোনো প্রশ্ন বা পপআপ আসবে না।":"Si un visiteur n'a pas encore choisi de langue, celle de son navigateur est appliquée en silence — sans question ni popup.",
+    "অনুবাদ (আপনার নিজের হাতে)":"Traductions (à la main)",
+    "৮টি ভাষা চালু; খালি থাকা ঘরগুলো স্বয়ংক্রিয়ভাবে English দেখায়।":"8 langues actives ; les champs vides affichent l'anglais automatiquement.",
+    "ভাষা তালিকা":"Liste des langues", "প্রতিটি UI লেখার অনুবাদ":"Traduction de chaque texte de l'interface", "সোশ্যাল লিংক":"Liens sociaux",
+    "+ লিংক যোগ করুন":"+ Ajouter un lien",
+    "শুধু আসল লিংক দিন (https:// বা mailto: দিয়ে শুরু)।":"Utilisez seulement des liens réels (commençant par https:// ou mailto:).",
+    "লেবেল (যেমন GitHub)":"Libellé (ex. GitHub)", "সেটিংস সংরক্ষণ":"Enregistrer les paramètres", "সংরক্ষিত হয়েছে ✅":"Enregistré ✅",
+    "ডেটা রপ্তানি ও আমদানি":"Export et import de données",
+    "পুরো সাইটের ডেটা (স্টোর, আইটেম, FAQ, সেটিংস, মেসেজ) এক JSON ফাইলে সংরক্ষণ বা ফিরিয়ে আনুন।":"Enregistrez ou restaurez tout le site (boutiques, éléments, FAQ, paramètres, messages) dans un seul fichier JSON.",
+    "⬇ JSON রপ্তানি":"⬇ Exporter en JSON", "⬆ JSON আমদানি":"⬆ Importer un JSON", "আমদানি সফল ✅":"Import réussi ✅",
+    "ফাইল পড়া যায়নি — সঠিক JSON দিন।":"Fichier illisible — fournissez un JSON valide.", "লোকাল অ্যাডমিন পাসকোড":"Code admin local",
+    "Firebase কনফিগ বসানো না থাকলে প্যানেলে ঢুকতে এই লোকাল পাসকোড লাগে (এটি ডিফল্ট নয় — আপনি নিজে সেট করেন)। Firebase চালু হলে এটি প্রযোজ্য থাকবে না।":"Sans configuration Firebase, ce code local ouvre le panneau (ce n'est pas un défaut — vous le définissez). Il ne s'applique plus une fois Firebase activé.",
+    "নতুন পাসকোড":"Nouveau code", "অন্তত ৪ অক্ষর":"Au moins 4 caractères", "পাসকোড সেট / বদলান":"Définir / changer le code",
+    "পাসকোড অন্তত ৪ অক্ষর।":"Le code nécessite au moins 4 caractères.", "লোকাল পাসকোড সেট হয়েছে ✅":"Code local défini ✅", "অ্যাপ":"Appli",
+    "AI টুলস":"Outils IA", "AI টুল":"Outil IA", "কালারফুল আর্টস":"Arts colorés", "আর্ট":"Art", "পাইথন এক্সটেনশন":"Extension Python",
+    "ফাইল সংরক্ষণ":"Stockage de fichiers", "ফাইল":"Fichier", "কাস্টম":"Personnalisé", "অন্যান্য":"Autres", "ওয়ালপেপার":"Fond d'écran", "ছবি":"Image",
+    "গান":"Chanson", "মুভি":"Film", "Portfolio · App Store":"Portfolio · App Store", "ওয়েলকাম টু":"Bienvenue sur",
+    "আমি অ্যাপ, AI টুল আর ডিজাইন বানাই — পরিষ্কার, দ্রুত আর দেখতে সুন্দর।":"Je crée des applis, des outils IA et du design — propre, rapide et beau.",
+    "যোগাযোগ করুন":"Me contacter", "আর্ট ও ডিজাইন":"Art et design", "পাইথন":"Python", "পরিষ্কার UI ও দ্রুত অভিজ্ঞতা":"UI propre, expérience rapide",
+    "AI দিয়ে বাস্তব সমাধান":"Solutions concrètes avec l'IA", "রঙিন, চোখে জমে এমন কাজ":"Un travail coloré qui accroche l'œil",
+    "প্র্যাকটিক্যাল স্ক্রিপ্ট ও টুল":"Scripts et outils pratiques" , "পরিসংখ্যান ও রিঅ্যাকশন":"Statistiques et réactions", "মোট ডাউনলোড":"Téléchargements au total", "সেভ":"Enregistrements", "রিঅ্যাকশন":"Réactions", "এখনো কোনো রিঅ্যাকশন নেই।":"Aucune réaction pour l'instant.", "আপনিও প্রথম রিঅ্যাকশন দিতে পারেন।":"Soyez la première personne à réagir.", "রিঅ্যাকশন দিতে লগ-ইন করুন।":"Connectez-vous pour réagir.", "ধন্যবাদ, রিঅ্যাকশন যোগ হয়েছে!":"Merci, votre réaction a été ajoutée !", "প্রথম রিঅ্যাকশন দিন":"Ajouter la première réaction", "আপনার রিঅ্যাকশন":"Votre réaction", "প্লে":"Jouer", "নতুন ট্যাবে খুলুন":"Ouvrir dans un nouvel onglet", "লোড হচ্ছে…":"Chargement…", "ফুল স্ক্রিন":"Plein écran", "বন্ধ করুন":"Fermer" },
+  pt: {"মেনু":"Menu", "হোম":"Início", "যোগাযোগ":"Contato", "সাইট দেখুন":"Ver o site", "স্টোর দেখুন":"Explorar a loja", "হোমে ফিরুন":"Voltar ao início",
+    "← হোমে ফিরুন":"← Voltar ao início", "← স্টোরে ফিরুন":"← Voltar à loja", "সাহায্য":"Ajuda", "সাহায্য ও প্রশ্নোত্তর":"Ajuda e perguntas",
+    "প্রশ্ন খুঁজুন…":"Buscar perguntas…", "ভাষা বদলান":"Mudar de idioma", "ভাষা খুঁজুন…":"Buscar idiomas…",
+    "কোনো ভাষা মেলেনি":"Nenhum idioma corresponde", "শব্দ চালু":"Som ligado", "শব্দ বন্ধ":"Som desligado",
+    "এই সাইট এখন <b>localStorage</b> মোডে চলছে। Firebase কনফিগ বসালেই Firestore/Auth-এ চলে যাবে।":"Este site está no modo <b>localStorage</b>. Adicione a configuração do Firebase e ele passará para Firestore/Auth.",
+    "Firebase মোড সক্রিয়। সব ভিজিটর প্রকাশিত কন্টেন্ট দেখবেন।":"Modo Firebase ativo. Todos os visitantes veem o seu conteúdo publicado.",
+    "FIREBASE":"FIREBASE", "LOCAL":"LOCAL", "ফিচারড আইটেম":"Itens em destaque", "স্টোরগুলোর বাছাই করা কাজ।":"Uma seleção das lojas.", "স্টোর":"Loja",
+    "স্টোর:":"Loja:", "{label} স্টোর":"Loja {label}", "প্রতিটি স্টোরে নিজস্ব ধরনের আইটেম সাজানো থাকে।":"Cada loja guarda itens do seu próprio tipo.",
+    "এখনো কোনো স্টোর যোগ করা হয়নি।":"Nenhuma loja foi adicionada ainda.",
+    "কন্ট্রোল প্যানেল থেকে আপনার প্রথম স্টোর তৈরি করুন — তারপর ভেতরে আইটেম বসান।":"Crie a sua primeira loja no painel de controle e depois adicione itens dentro dela.",
+    "কন্ট্রোল প্যানেল খুলুন":"Abrir painel de controle", "কন্ট্রোল প্যানেল":"Painel de controle",
+    "নাম, বিবরণ বা ট্যাগ খুঁজুন…":"Busque nome, descrição ou tag…", "ধরন":"Tipo", "আইটেম":"Item", "টি আইটেম":"itens", "{n}টি আইটেম":"{n} itens",
+    "আইটেম · {n}টি":"Itens · {n}", "এই স্টোরে এখনো কিছু যোগ করা হয়নি।":"Nada foi adicionado a esta loja ainda.",
+    "কন্ট্রোল প্যানেল থেকে আইটেম যোগ করুন।":"Adicione itens pelo painel de controle.", "কোনো ধরন নেই।":"Nenhum tipo ainda.", "★ ফিচারড":"★ Destaque",
+    "খসড়া":"Rascunho", "খুলুন":"Abrir", "সোর্স":"Fonte", "ডাউনলোড":"Baixar", "সোর্স কোড":"Código-fonte", "লিংক ও ডাউনলোড":"Links e download",
+    "তথ্য":"Detalhes", "বিবরণ":"Descrição", "ইনস্টল নির্দেশ":"Etapas de instalação", "README":"README", "লিংক":"Link",
+    "এই আইটেমের কোনো লিংক যোগ করা হয়নি।":"Nenhum link foi adicionado para este item.",
+    "আইটেমটি পাওয়া যায়নি বা প্রকাশিত নয়।":"Este item não foi encontrado ou não está publicado.", "লেখক":"Autor", "বছর":"Ano", "পরিচয়":"Identidade",
+    "সংযোগ":"Conectar", "কোনো প্রজেক্ট, সহযোগিতা বা প্রশ্ন থাকলে লিখুন।":"Escreva-me sobre um projeto, uma colaboração ou uma dúvida.", "নাম":"Nome",
+    "আপনার নাম":"Seu nome", "ইমেইল":"E-mail", "আপনার ইমেইল":"Seu e-mail", "মেসেজ":"Mensagem", "কী জানাতে চান…":"O que você gostaria de compartilhar…",
+    "পাঠান":"Enviar", "সরাসরি লিংক":"Links diretos", "যোগাযোগের লিংক যোগ করা হয়নি।":"Nenhum link de contato foi adicionado ainda.",
+    "কন্ট্রোল প্যানেল → সাইট সেটিংস থেকে ইমেইল ও সোশ্যাল লিংক দিন।":"Adicione e-mail e links sociais em Painel → Configurações do site.",
+    "এই বিভাগে এখনো লেখা যোগ করা হয়নি।":"Nenhum texto foi adicionado a esta seção ainda.",
+    "আপনার নাম সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"O seu nome deve ter no máximo 100 caracteres.", "ইমেইল দিন।":"Informe o seu e-mail.",
+    "ইমেইল সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"O e-mail deve ter no máximo 100 caracteres.",
+    "সঠিক ইমেইল ঠিকানা দিন (@ সহ)।":"Informe um e-mail válido (com @).", "মেসেজ লিখুন।":"Escreva uma mensagem.",
+    "মেসেজ সর্বোচ্চ ২০০০ অক্ষরের হতে পারে।":"A mensagem pode ter no máximo 2000 caracteres.",
+    "ধন্যবাদ! মেসেজটি পাঠানো হয়েছে।":"Obrigado! A mensagem foi enviada.", "পাঠানো যায়নি: {msg}":"Não foi possível enviar: {msg}",
+    "এই ঠিকানায় কিছু নেই।":"Nada existe neste endereço.", "মালিকের জন্য সুরক্ষিত এলাকা":"Área segura para o proprietário",
+    "অ্যাডমিন লগইন":"Login do administrador",
+    "শুধু মালিক স্টোর, আইটেম ও সেটিংস নিয়ন্ত্রণ করতে পারবেন।":"Somente o proprietário pode gerenciar lojas, itens e configurações.",
+    "পাসওয়ার্ড":"Senha", "প্রবেশ করুন":"Entrar", "প্রবেশ":"Entrar", "শুধু মালিকই এখানে ঢুকতে পারবেন।":"Somente o proprietário pode entrar aqui.",
+    "পাসকোড":"Código", "নতুন পাসকোড সেট করুন (৪+ অক্ষর)":"Defina um novo código (4+ caracteres)", "আপনি মালিক নন।":"Você não é o proprietário.",
+    "লগইন ব্যর্থ।":"Falha no login.", "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।":"Problema de conexão. Tente novamente.",
+    "ইমেইল যাচাই করুন। আপনার ইনবক্সে পাঠানো লিংকে ক্লিক করুন।":"Verifique o e-mail. Clique no link enviado para a sua caixa de entrada.",
+    "যাচাই-লিংক আবার পাঠান":"Reenviar o link de verificação", "পাঠানো হচ্ছে…":"Enviando…",
+    "যাচাই-লিংক পাঠানো হয়েছে ✅ ইনবক্স (না-থাকলে স্প্যাম) দেখুন, লিংকে ক্লিক করুন, তারপর আবার লগইন করুন।":"Link de verificação enviado ✅ Veja a caixa de entrada (e o spam), clique no link e entre novamente.",
+    "ভুল পাসকোড।":"Código incorreto.", "পাসকোড অন্তত ৪ অক্ষরের দিন।":"Informe um código com pelo menos 4 caracteres.",
+    "সাইট ব্যবস্থাপনা":"Gestão do site", "লগআউট":"Sair", "সাইট সেটিংস":"Configurações do site", "ডেটা":"Dados", "FAQ":"FAQ", "ক্রম":"Ordem",
+    "প্রকাশ":"Publicar", "অ্যাকশন":"Ações", "সম্পাদনা":"Editar", "মুছুন":"Excluir", "সংরক্ষণ":"Salvar", "বাতিল":"Cancelar", "প্রকাশিত":"Publicado",
+    "ফিচার":"Destaque", "স্টোর ব্যবস্থাপনা":"Gestão das lojas", "+ নতুন স্টোর":"+ Nova loja",
+    "↑ ↓ দিয়ে ক্রম বদলান। “প্রকাশ” বন্ধ থাকলে স্টোরটি সাইটে দেখাবে না। স্টোর মুছলে তার ভেতরের সব আইটেমও মুছে যাবে।":"Use ↑ ↓ para mudar a ordem. Uma loja com “Publicar” desligado fica oculta. Excluir uma loja apaga também todos os itens dela.",
+    "এখনো কোনো স্টোর নেই। “+ নতুন স্টোর” চেপে শুরু করুন।":"Nenhuma loja ainda. Toque em “+ Nova loja” para começar.",
+    "“{name}” স্টোরটি মুছে ফেলবেন? ভেতরের সব আইটেমও মুছে যাবে।":"Excluir a loja “{name}”? Todos os itens dela também serão excluídos.",
+    "স্টোর সম্পাদনা":"Editar loja", "নতুন স্টোর":"Nova loja", "আইকন (একটি ইমোজি/অক্ষর)":"Ícone (um emoji ou letra)", "যেমন 📱":"ex. 📱",
+    "এই স্টোরে কী কী থাকে…":"O que esta loja contém…", "যেমন: আমার অ্যাপসমূহ":"ex. Meus apps", "+ নতুন আইটেম":"+ Novo item",
+    "প্রথমে একটি স্টোর তৈরি করুন।":"Crie uma loja primeiro.",
+    "আইটেম সবসময় কোনো না কোনো স্টোরের ভেতরে থাকে।":"Os itens sempre vivem dentro de uma loja.",
+    "“হোমে ফিচার” দিলে আইটেমটি হোমের ফিচারড সেকশনে দেখাবে। বইয়ের কপির জন্য লেখক/বছর, এক্সটেনশনের জন্য ইনস্টল নির্দেশ ফিল্ড ভরে দিন।":"“Destaque na página inicial” mostra o item na seção de destaques. Para cópias de livro preencha autor/ano; para extensões, as etapas de instalação.",
+    "এই স্টোরে এখনো আইটেম নেই। “+ নতুন আইটেম” চেপে যোগ করুন।":"Nenhum item nesta loja ainda. Toque em “+ Novo item” para adicionar.",
+    "“{name}” আইটেমটি মুছে ফেলবেন?":"Excluir o item “{name}”?", "আইটেম সম্পাদনা":"Editar item", "নতুন আইটেম":"Novo item", "ধরন (type)":"Categoria",
+    "কাস্টম টাইপের নাম":"Nome do tipo personalizado", "যেমন: গেম, টেমপ্লেট, UI কিট…":"ex. Jogos, Modelos, Kits de UI…", "যেমন: Wallora":"ex. Wallora",
+    "এক লাইনের পরিচয় (tagline)":"Frase de uma linha", "সংক্ষিপ্ত বর্ণনা":"Descrição curta", "বিস্তারিত বিবরণ…":"Descrição detalhada…",
+    "ট্যাগ (কমা দিয়ে)":"Tags (separadas por vírgula)", "বইয়ের কপি":"Cópia do livro", "লেখকের নাম":"Nome do autor", "এক্সটেনশন":"Extensão",
+    "কীভাবে ইনস্টল করবেন…":"Como instalá-la…", "কভার":"Capa", "কভার রঙ":"Cor da capa", "নিজের রঙ":"Cor personalizada",
+    "কভার ছবির লিংক":"Link da imagem da capa", "https://… (ছবির সরাসরি লিংক)":"https://… (link direto da imagem)", "ডাউনলোড ও লিংক":"Download e links",
+    "ডাউনলোড লিংক":"Link de download",
+    "GitHub Release-এর asset লিংক বা যেকোনো সরাসরি ফাইল লিংক দিন।":"Cole um link de asset do GitHub Release ou qualquer link direto de arquivo.",
+    "সোর্স লিংক":"Link do código", "বিস্তারিত পাতায় দেখানোর নোট…":"Nota exibida na página de detalhes…", "হোমে ফিচার":"Destaque na página inicial",
+    "প্রশ্নোত্তর (FAQ)":"Perguntas (FAQ)", "+ নতুন প্রশ্ন":"+ Nova pergunta", "প্রশ্ন":"Pergunta",
+    "এখনো কোনো প্রশ্ন নেই। “+ নতুন প্রশ্ন” চেপে যোগ করুন।":"Nenhuma pergunta ainda. Toque em “+ Nova pergunta” para adicionar.",
+    "প্রশ্নোত্তর":"Perguntas", "নতুন প্রশ্ন":"Nova pergunta", "প্রশ্ন সম্পাদনা":"Editar pergunta", "উত্তর":"Resposta",
+    "যেমন: আপনি কী কী নিয়ে কাজ করেন?":"ex. Com que tipo de trabalho você atua?", "এখানে উত্তর লিখুন…":"Escreva a resposta aqui…",
+    "প্রশ্নটি মুছে ফেলবেন?":"Excluir esta pergunta?",
+    "এই প্রশ্নোত্তরগুলো সাইটের কোণার ভাসমান হেল্পারে দেখাবে। এগুলো আসল AI নয়, আগে থেকে লেখা উত্তর।":"Essas perguntas aparecem no assistente flutuante no canto. São respostas pré-escritas, não IA de verdade.",
+    "কোনো প্রশ্ন পাওয়া যায়নি।":"Nenhuma pergunta encontrada.", "অন্য কিছু লিখে দেখুন।":"Tente outras palavras.",
+    "মালিক এখনো FAQ যোগ করেননি।":"O proprietário ainda não adicionou FAQ.", "যোগাযোগ মেসেজ":"Mensagens de contato", "রিফ্রেশ":"Atualizar",
+    "শুধু আপনি (মালিক) এই মেসেজ পড়তে পারবেন; সাধারণ দর্শক পাঠাতে পারবে কিন্তু কারও মেসেজ দেখতে পাবে না।":"Somente você (o proprietário) pode ler estas mensagens; visitantes podem enviá-las, mas nunca ver as de outra pessoa.",
+    "কোনো মেসেজ নেই।":"Nenhuma mensagem.", "যোগাযোগ ফর্ম থেকে আসা মেসেজ এখানে দেখাবে।":"As mensagens do formulário de contato aparecem aqui.",
+    "— কোনো স্টোর নেই —":"— sem lojas —", "সাইটের নাম":"Nome do site", "যোগাযোগের ইমেইল":"E-mail de contato",
+    "হোমের পরিচয়ের লেখা (এক/দুই লাইন)":"Linha de identidade da página inicial (uma ou duas linhas)",
+    "আপনি কে, কী নিয়ে কাজ করেন…":"Quem você é e o que constrói…",
+    "খালি রাখলে হোমে এই লাইন দেখাবে না।":"Deixe vazio para ocultar esta linha na página inicial.",
+    "About DEEPostrophy বিভাগের লেখা":"Texto da seção About DEEPostrophy", "লক্ষ্য, দক্ষতা ও পথচলা…":"Objetivos, habilidades e a jornada…",
+    "লেখা সংরক্ষণ":"Salvar o texto",
+    "এই লেখাটি সাইটের About DEEPostrophy বিভাগেই দেখায় — অন্য কোথাও নয়।":"Este texto aparece apenas na seção About DEEPostrophy do site — em nenhum outro lugar.",
+    "ভাষা":"Idioma", "ডিফল্ট English; ভিজিটার নিজে বেছে নিলে সেটি মনে থাকে।":"Padrão é inglês; a escolha do visitante é lembrada.",
+    "অটো-ভাষা চালু":"Ativar idioma automático",
+    "ভিজিটার এখনো ভাষা বেয়ে না রাখলে তাঁর ব্রাউজারের ভাষাটি চুপচাপ প্রয়োগ হবে — কোনো প্রশ্ন বা পপআপ আসবে না।":"Se o visitante ainda não escolheu idioma, o idioma do navegador é aplicado silenciosamente — sem perguntas nem pop-ups.",
+    "অনুবাদ (আপনার নিজের হাতে)":"Traduções (feitas por você)",
+    "৮টি ভাষা চালু; খালি থাকা ঘরগুলো স্বয়ংক্রিয়ভাবে English দেখায়।":"8 idiomas ativos; campos vazios mostram inglês automaticamente.",
+    "ভাষা তালিকা":"Lista de idiomas", "প্রতিটি UI লেখার অনুবাদ":"Tradução de cada texto da interface", "সোশ্যাল লিংক":"Links sociais",
+    "+ লিংক যোগ করুন":"+ Adicionar link",
+    "শুধু আসল লিংক দিন (https:// বা mailto: দিয়ে শুরু)।":"Use apenas links reais (começando com https:// ou mailto:).",
+    "লেবেল (যেমন GitHub)":"Rótulo (ex. GitHub)", "সেটিংস সংরক্ষণ":"Salvar configurações", "সংরক্ষিত হয়েছে ✅":"Salvo ✅",
+    "ডেটা রপ্তানি ও আমদানি":"Exportar e importar dados",
+    "পুরো সাইটের ডেটা (স্টোর, আইটেম, FAQ, সেটিংস, মেসেজ) এক JSON ফাইলে সংরক্ষণ বা ফিরিয়ে আনুন।":"Salve ou restaure o site inteiro (lojas, itens, FAQ, configurações, mensagens) em um único arquivo JSON.",
+    "⬇ JSON রপ্তানি":"⬇ Exportar JSON", "⬆ JSON আমদানি":"⬆ Importar JSON", "আমদানি সফল ✅":"Importação bem-sucedida ✅",
+    "ফাইল পড়া যায়নি — সঠিক JSON দিন।":"O arquivo não pôde ser lido — forneça um JSON válido.",
+    "লোকাল অ্যাডমিন পাসকোড":"Código local do administrador",
+    "Firebase কনফিগ বসানো না থাকলে প্যানেলে ঢুকতে এই লোকাল পাসকোড লাগে (এটি ডিফল্ট নয় — আপনি নিজে সেট করেন)। Firebase চালু হলে এটি প্রযোজ্য থাকবে না।":"Sem configuração do Firebase, este código local abre o painel (não é padrão — você mesmo define). Ele deixa de se aplicar quando o Firebase está ativo.",
+    "নতুন পাসকোড":"Novo código", "অন্তত ৪ অক্ষর":"Pelo menos 4 caracteres", "পাসকোড সেট / বদলান":"Definir / alterar código",
+    "পাসকোড অন্তত ৪ অক্ষর।":"O código precisa de pelo menos 4 caracteres.", "লোকাল পাসকোড সেট হয়েছে ✅":"Código local definido ✅", "অ্যাপ":"App",
+    "AI টুলস":"Ferramentas de IA", "AI টুল":"Ferramenta de IA", "কালারফুল আর্টস":"Artes coloridas", "আর্ট":"Arte", "পাইথন এক্সটেনশন":"Extensão Python",
+    "ফাইল সংরক্ষণ":"Armazenamento de arquivos", "ফাইল":"Arquivo", "কাস্টম":"Personalizado", "অন্যান্য":"Outros", "ওয়ালপেপার":"Papel de parede",
+    "ছবি":"Imagem", "গান":"Música", "মুভি":"Filme", "Portfolio · App Store":"Portfolio · App Store", "ওয়েলকাম টু":"Bem-vindo a",
+    "আমি অ্যাপ, AI টুল আর ডিজাইন বানাই — পরিষ্কার, দ্রুত আর দেখতে সুন্দর।":"Crio apps, ferramentas de IA e design — limpos, rápidos e bonitos.",
+    "যোগাযোগ করুন":"Entrar em contato", "আর্ট ও ডিজাইন":"Arte e design", "পাইথন":"Python",
+    "পরিষ্কার UI ও দ্রুত অভিজ্ঞতা":"Interface limpa, experiência rápida", "AI দিয়ে বাস্তব সমাধান":"Soluções reais com IA",
+    "রঙিন, চোখে জমে এমন কাজ":"Trabalho colorido que prende o olhar", "প্র্যাকটিক্যাল স্ক্রিপ্ট ও টুল":"Scripts e ferramentas práticas" , "পরিসংখ্যান ও রিঅ্যাকশন":"Estatísticas e reações", "মোট ডাউনলোড":"Downloads totais", "সেভ":"Salvamentos", "রিঅ্যাকশন":"Reações", "এখনো কোনো রিঅ্যাকশন নেই।":"Nenhuma reação ainda.", "আপনিও প্রথম রিঅ্যাকশন দিতে পারেন।":"Seja o primeiro a reagir.", "রিঅ্যাকশন দিতে লগ-ইন করুন।":"Entre para reagir.", "ধন্যবাদ, রিঅ্যাকশন যোগ হয়েছে!":"Obrigado, sua reação foi adicionada!", "প্রথম রিঅ্যাকশন দিন":"Adicionar a primeira reação", "আপনার রিঅ্যাকশন":"Sua reação", "প্লে":"Jogar", "নতুন ট্যাবে খুলুন":"Abrir em nova aba", "লোড হচ্ছে…":"Carregando…", "ফুল স্ক্রিন":"Tela cheia", "বন্ধ করুন":"Fechar" },
+  hi: {"মেনু":"मेनू", "হোম":"होम", "যোগাযোগ":"संपर्क", "সাইট দেখুন":"साइट देखें", "স্টোর দেখুন":"स्टोर देखें", "হোমে ফিরুন":"होम पर लौटें",
+    "← হোমে ফিরুন":"← होम पर लौटें", "← স্টোরে ফিরুন":"← स्टोर पर लौटें", "সাহায্য":"सहायता", "সাহায্য ও প্রশ্নোত্তর":"सहायता और प्रश्नोत्तर",
+    "প্রশ্ন খুঁজুন…":"प्रश्न खोजें…", "ভাষা বদলান":"भाषा बदलें", "ভাষা খুঁজুন…":"भाषा खोजें…", "কোনো ভাষা মেলেনি":"कोई भाषा मेल नहीं खाती",
+    "শব্দ চালু":"आवाज़ चालू", "শব্দ বন্ধ":"आवाज़ बंद",
+    "এই সাইট এখন <b>localStorage</b> মোডে চলছে। Firebase কনফিগ বসালেই Firestore/Auth-এ চলে যাবে।":"यह साइट अभी <b>localStorage</b> मोड में चल रही है. Firebase कॉन्फ़िग जोड़ते ही यह Firestore/Auth पर चली जाएगी.",
+    "Firebase মোড সক্রিয়। সব ভিজিটর প্রকাশিত কন্টেন্ট দেখবেন।":"Firebase मोड सक्रिय है. सभी आगंतुक आपका प्रकाशित सामग्री देखेंगे.",
+    "FIREBASE":"FIREBASE", "LOCAL":"LOCAL", "ফিচারড আইটেম":"विशेष आइटम", "স্টোরগুলোর বাছাই করা কাজ।":"स्टोर से चुनिंदा काम.", "স্টোর":"स्टोर",
+    "স্টোর:":"स्टोर:", "{label} স্টোর":"{label} स्टोर", "প্রতিটি স্টোরে নিজস্ব ধরনের আইটেম সাজানো থাকে।":"हर स्टोर में अपने प्रकार के आइटम होते हैं.",
+    "এখনো কোনো স্টোর যোগ করা হয়নি।":"अभी कोई स्टोर नहीं जोड़ा गया है.",
+    "কন্ট্রোল প্যানেল থেকে আপনার প্রথম স্টোর তৈরি করুন — তারপর ভেতরে আইটেম বসান।":"कंट्रोल पैनल से अपना पहला स्टोर बनाएँ — फिर उसके अंदर आइटम जोड़ें.",
+    "কন্ট্রোল প্যানেল খুলুন":"कंट्रोल पैनल खोलें", "কন্ট্রোল প্যানেল":"कंट्रोल पैनल", "নাম, বিবরণ বা ট্যাগ খুঁজুন…":"नाम, विवरण या टैग खोजें…",
+    "ধরন":"प्रकार", "আইটেম":"आइटम", "টি আইটেম":"आइटम", "{n}টি আইটেম":"{n} आइटम", "আইটেম · {n}টি":"आइटम · {n}",
+    "এই স্টোরে এখনো কিছু যোগ করা হয়নি।":"इस स्टोर में अभी कुछ नहीं जोड़ा गया है.",
+    "কন্ট্রোল প্যানেল থেকে আইটেম যোগ করুন।":"कंट्रोल पैनल से आइटम जोड़ें.", "কোনো ধরন নেই।":"अभी कोई प्रकार नहीं.", "★ ফিচারড":"★ विशेष",
+    "খসড়া":"ड्राफ़्ट", "খুলুন":"खोलें", "সোর্স":"स्रोत", "ডাউনলোড":"डाउनलोड", "সোর্স কোড":"स्रोत कोड", "লিংক ও ডাউনলোড":"लिंक और डाउनलोड",
+    "তথ্য":"विवरण", "বিবরণ":"विवरण", "ইনস্টল নির্দেশ":"इंस्टॉल निर्देश", "README":"README", "লিংক":"लिंक",
+    "এই আইটেমের কোনো লিংক যোগ করা হয়নি।":"इस आइटम के लिए कोई लिंक नहीं जोड़ा गया है.",
+    "আইটেমটি পাওয়া যায়নি বা প্রকাশিত নয়।":"यह आइटम नहीं मिला या प्रकाशित नहीं है.", "লেখক":"लेखक", "বছর":"वर्ष", "পরিচয়":"परिचय", "সংযোগ":"जुड़ें",
+    "কোনো প্রজেক্ট, সহযোগিতা বা প্রশ্ন থাকলে লিখুন।":"किसी प्रोजेक्ट, सहयोग या सवाल के लिए लिखें.", "নাম":"नाम", "আপনার নাম":"आपका नाम",
+    "ইমেইল":"ईमेल", "আপনার ইমেইল":"आपका ईमेल", "মেসেজ":"संदेश", "কী জানাতে চান…":"आप क्या बताना चाहेंगे…", "পাঠান":"भेजें", "সরাসরি লিংক":"सीधे लिंक",
+    "যোগাযোগের লিংক যোগ করা হয়নি।":"अभी कोई संपर्क लिंक नहीं जोड़ा गया है.",
+    "কন্ট্রোল প্যানেল → সাইট সেটিংস থেকে ইমেইল ও সোশ্যাল লিংক দিন।":"कंट्रोल पैनल → साइट सेटिंग्स में अपना ईमेल और सोशल लिंक डालें.",
+    "এই বিভাগে এখনো লেখা যোগ করা হয়নি।":"इस अनुभाग में अभी कोई लेख नहीं जोड़ा गया है.",
+    "আপনার নাম সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"आपका नाम अधिकतम 100 अक्षर का होना चाहिए.", "ইমেইল দিন।":"कृपया ईमेल दर्ज करें.",
+    "ইমেইল সর্বোচ্চ ১০০ অক্ষরের হতে হবে।":"ईमेल अधिकतम 100 अक्षर का होना चाहिए.", "সঠিক ইমেইল ঠিকানা দিন (@ সহ)।":"सही ईमेल पता दर्ज करें (@ के साथ).",
+    "মেসেজ লিখুন।":"कृपया संदेश लिखें.", "মেসেজ সর্বোচ্চ ২০০০ অক্ষরের হতে পারে।":"संदेश अधिकतम 2000 अक्षर का हो सकता है.",
+    "ধন্যবাদ! মেসেজটি পাঠানো হয়েছে।":"धन्यवाद! संदेश भेज दिया गया है.", "পাঠানো যায়নি: {msg}":"भेजा नहीं जा सका: {msg}",
+    "এই ঠিকানায় কিছু নেই।":"इस पते पर कुछ नहीं है.", "মালিকের জন্য সুরক্ষিত এলাকা":"मालिक के लिए सुरक्षित क्षेत्र", "অ্যাডমিন লগইন":"एडमिन लॉगिन",
+    "শুধু মালিক স্টোর, আইটেম ও সেটিংস নিয়ন্ত্রণ করতে পারবেন।":"केवल मालिक ही स्टोर, आइटम और सेटिंग्स प्रबंधित कर सकता है.", "পাসওয়ার্ড":"पासवर्ड",
+    "প্রবেশ করুন":"साइन इन करें", "প্রবেশ":"प्रवेश", "শুধু মালিকই এখানে ঢুকতে পারবেন।":"यहाँ केवल मालिक ही साइन इन कर सकता है.", "পাসকোড":"पासकोड",
+    "নতুন পাসকোড সেট করুন (৪+ অক্ষর)":"नया पासकोड सेट करें (4+ अक्षर)", "আপনি মালিক নন।":"आप मालिक नहीं हैं.", "লগইন ব্যর্থ।":"लॉगिन विफल.",
+    "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।":"कनेक्शन में समस्या. फिर से कोशिश करें.",
+    "ইমেইল যাচাই করুন। আপনার ইনবক্সে পাঠানো লিংকে ক্লিক করুন।":"अपना ईमेल सत्यापित करें. इनबॉक्स में भेजे गए लिंक पर क्लिक करें.",
+    "যাচাই-লিংক আবার পাঠান":"सत्यापन लिंक फिर भेजें", "পাঠানো হচ্ছে…":"भेजा जा रहा है…",
+    "যাচাই-লিংক পাঠানো হয়েছে ✅ ইনবক্স (না-থাকলে স্প্যাম) দেখুন, লিংকে ক্লিক করুন, তারপর আবার লগইন করুন।":"सत्यापन लिंक भेज दिया गया ✅ इनबॉक्स (न हो तो स्पैम) देखें, लिंक पर क्लिक करें, फिर दोबारा लॉगिन करें.",
+    "ভুল পাসকোড।":"ग़लत पासकोड.", "পাসকোড অন্তত ৪ অক্ষরের দিন।":"कम से कम 4 अक्षर का पासकोड दर्ज करें.", "সাইট ব্যবস্থাপনা":"साइट प्रबंधन",
+    "লগআউট":"लॉग आउट", "সাইট সেটিংস":"साइट सेटिंग्स", "ডেটা":"डेटा", "FAQ":"FAQ", "ক্রম":"क्रम", "প্রকাশ":"प्रकाशित", "অ্যাকশন":"क्रियाएँ",
+    "সম্পাদনা":"संपादित करें", "মুছুন":"हटाएँ", "সংরক্ষণ":"सहेजें", "বাতিল":"रद्द करें", "প্রকাশিত":"प्रकाशित", "ফিচার":"विशेष",
+    "স্টোর ব্যবস্থাপনা":"स्टोर प्रबंधन", "+ নতুন স্টোর":"+ नया स्टोर",
+    "↑ ↓ দিয়ে ক্রম বদলান। “প্রকাশ” বন্ধ থাকলে স্টোরটি সাইটে দেখাবে না। স্টোর মুছলে তার ভেতরের সব আইটেমও মুছে যাবে।":"क्रम बदलने के लिए ↑ ↓ उपयोग करें. “प्रकाशित” बंद होने पर स्टोर साइट पर नहीं दिखेगा. स्टोर हटाने पर उसके अंदर के सभी आइटम भी हट जाएँगे.",
+    "এখনো কোনো স্টোর নেই। “+ নতুন স্টোর” চেপে শুরু করুন।":"अभी कोई स्टोर नहीं. शुरू करने के लिए “+ नया स्टोर” दबाएँ.",
+    "“{name}” স্টোরটি মুছে ফেলবেন? ভেতরের সব আইটেমও মুছে যাবে।":"स्टोर “{name}” हटाएँ? अंदर के सभी आइटम भी हट जाएँगे.",
+    "স্টোর সম্পাদনা":"स्टोर संपादित करें", "নতুন স্টোর":"नया स्टोर", "আইকন (একটি ইমোজি/অক্ষর)":"आइकन (एक इमोजी/अक्षर)", "যেমন 📱":"जैसे 📱",
+    "এই স্টোরে কী কী থাকে…":"इस स्टोर में क्या है…", "যেমন: আমার অ্যাপসমূহ":"जैसे: मेरे ऐप्स", "+ নতুন আইটেম":"+ नया आइटम",
+    "প্রথমে একটি স্টোর তৈরি করুন।":"पहले एक स्टोर बनाएँ.",
+    "আইটেম সবসময় কোনো না কোনো স্টোরের ভেতরে থাকে।":"आइटम हमेशा किसी न किसी स्टोर के अंदर रहते हैं.",
+    "“হোমে ফিচার” দিলে আইটেমটি হোমের ফিচারড সেকশনে দেখাবে। বইয়ের কপির জন্য লেখক/বছর, এক্সটেনশনের জন্য ইনস্টল নির্দেশ ফিল্ড ভরে দিন।":"“होम पर विशेष” चुनने पर आइटम होम के विशेष अनुभाग में दिखेगा. किताब की कॉपी के लिए लेखक/वर्ष, एक्सटेंशन के लिए इंस्टॉल निर्देश भरें.",
+    "এই স্টোরে এখনো আইটেম নেই। “+ নতুন আইটেম” চেপে যোগ করুন।":"इस स्टोर में अभी आइटम नहीं. जोड़ने के लिए “+ नया आइटम” दबाएँ.",
+    "“{name}” আইটেমটি মুছে ফেলবেন?":"आइटम “{name}” हटाएँ?", "আইটেম সম্পাদনা":"आइटम संपादित करें", "নতুন আইটেম":"नया आइटम", "ধরন (type)":"श्रेणी",
+    "কাস্টম টাইপের নাম":"कस्टम प्रकार का नाम", "যেমন: গেম, টেমপ্লেট, UI কিট…":"जैसे: गेम, टेम्पलेट, UI किट…", "যেমন: Wallora":"जैसे: Wallora",
+    "এক লাইনের পরিচয় (tagline)":"एक पंक्ति का परिचय", "সংক্ষিপ্ত বর্ণনা":"संक्षिप्त विवरण", "বিস্তারিত বিবরণ…":"विस्तृत विवरण…",
+    "ট্যাগ (কমা দিয়ে)":"टैग (अल्पविराम से) ", "বইয়ের কপি":"किताब की कॉपी", "লেখকের নাম":"लेखक का नाम", "এক্সটেনশন":"एक्सटेंशन",
+    "কীভাবে ইনস্টল করবেন…":"कैसे इंस्टॉल करें…", "কভার":"कवर", "কভার রঙ":"कवर का रंग", "নিজের রঙ":"अपना रंग", "কভার ছবির লিংক":"कवर छवि का लिंक",
+    "https://… (ছবির সরাসরি লিংক)":"https://… (छवि का सीधा लिंक)", "ডাউনলোড ও লিংক":"डाउनलोड और लिंक", "ডাউনলোড লিংক":"डाउनलोड लिंक",
+    "GitHub Release-এর asset লিংক বা যেকোনো সরাসরি ফাইল লিংক দিন।":"GitHub Release की asset लिंक या कोई भी सीधी फ़ाइल लिंक डालें.",
+    "সোর্স লিংক":"स्रोत लिंक", "বিস্তারিত পাতায় দেখানোর নোট…":"विवरण पृष्ठ पर दिखने वाला नोट…", "হোমে ফিচার":"होम पर विशेष",
+    "প্রশ্নোত্তর (FAQ)":"प्रश्नोत्तर (FAQ)", "+ নতুন প্রশ্ন":"+ नया प्रश्न", "প্রশ্ন":"प्रश्न",
+    "এখনো কোনো প্রশ্ন নেই। “+ নতুন প্রশ্ন” চেপে যোগ করুন।":"अभी कोई प्रश्न नहीं. जोड़ने के लिए “+ नया प्रश्न” दबाएँ.", "প্রশ্নোত্তর":"प्रश्नोत्तर",
+    "নতুন প্রশ্ন":"नया प्रश्न", "প্রশ্ন সম্পাদনা":"प्रश्न संपादित करें", "উত্তর":"उत्तर",
+    "যেমন: আপনি কী কী নিয়ে কাজ করেন?":"जैसे: आप किन चीज़ों पर काम करते हैं?", "এখানে উত্তর লিখুন…":"यहाँ उत्तर लिखें…",
+    "প্রশ্নটি মুছে ফেলবেন?":"यह प्रश्न हटाएँ?",
+    "এই প্রশ্নোত্তরগুলো সাইটের কোণার ভাসমান হেল্পারে দেখাবে। এগুলো আসল AI নয়, আগে থেকে লেখা উত্তর।":"ये प्रश्न साइट के कोने वाले फ़्लोटिंग हेल्पर में दिखेंगे. ये असली AI नहीं, पहले से लिखे उत्तर हैं.",
+    "কোনো প্রশ্ন পাওয়া যায়নি।":"कोई प्रश्न नहीं मिला.", "অন্য কিছু লিখে দেখুন।":"दूसरे शब्द आज़माएँ.",
+    "মালিক এখনো FAQ যোগ করেননি।":"मालिक ने अभी FAQ नहीं जोड़े हैं.", "যোগাযোগ মেসেজ":"संपर्क संदेश", "রিফ্রেশ":"रिफ़्रेश",
+    "শুধু আপনি (মালিক) এই মেসেজ পড়তে পারবেন; সাধারণ দর্শক পাঠাতে পারবে কিন্তু কারও মেসেজ দেখতে পাবে না।":"केवल आप (मालिक) ये संदेश पढ़ सकते हैं; आगंतुक भेज सकते हैं पर किसी का संदेश नहीं देख सकते.",
+    "কোনো মেসেজ নেই।":"कोई संदेश नहीं.", "যোগাযোগ ফর্ম থেকে আসা মেসেজ এখানে দেখাবে।":"संपर्क फ़ॉर्म के संदेश यहाँ दिखेंगे.",
+    "— কোনো স্টোর নেই —":"— कोई स्टोर नहीं —", "সাইটের নাম":"साइट का नाम", "যোগাযোগের ইমেইল":"संपर्क ईमेल",
+    "হোমের পরিচয়ের লেখা (এক/দুই লাইন)":"होम का परिचय लेख (एक/दो पंक्तियाँ)", "আপনি কে, কী নিয়ে কাজ করেন…":"आप कौन हैं, क्या बनाते हैं…",
+    "খালি রাখলে হোমে এই লাইন দেখাবে না।":"खाली छोड़ने पर होम पर यह पंक्ति नहीं दिखेगी.",
+    "About DEEPostrophy বিভাগের লেখা":"About DEEPostrophy अनुभाग का लेख", "লক্ষ্য, দক্ষতা ও পথচলা…":"लक्ष्य, कौशल और यात्रा…",
+    "লেখা সংরক্ষণ":"लेख सहेजें",
+    "এই লেখাটি সাইটের About DEEPostrophy বিভাগেই দেখায় — অন্য কোথাও নয়।":"यह लेख केवल साइट के About DEEPostrophy अनुभाग में दिखता है — कहीं और नहीं.",
+    "ভাষা":"भाषा", "ডিফল্ট English; ভিজিটার নিজে বেছে নিলে সেটি মনে থাকে।":"डिफ़ॉल्ट अंग्रेज़ी; आगंतुक की चुनि याद रखी जाती है.",
+    "অটো-ভাষা চালু":"ऑटो-भाषा चालू",
+    "ভিজিটার এখনো ভাষা বেয়ে না রাখলে তাঁর ব্রাউজারের ভাষাটি চুপচাপ প্রয়োগ হবে — কোনো প্রশ্ন বা পপআপ আসবে না।":"जिसने अभी भाषा नहीं चुनी, उसके ब्राउज़र की भाषा चुपचाप लागू हो जाएगी — कोई सवाल या पॉपअप नहीं.",
+    "অনুবাদ (আপনার নিজের হাতে)":"अनुवाद (आपके हाथ से)",
+    "৮টি ভাষা চালু; খালি থাকা ঘরগুলো স্বয়ংক্রিয়ভাবে English দেখায়।":"8 भाषाएँ सक्रिय; खाली खाने अपने आप अंग्रेज़ी दिखाते हैं.",
+    "ভাষা তালিকা":"भाषा सूची", "প্রতিটি UI লেখার অনুবাদ":"हर UI लेख का अनुवाद", "সোশ্যাল লিংক":"सोशल लिंक", "+ লিংক যোগ করুন":"+ लिंक जोड़ें",
+    "শুধু আসল লিংক দিন (https:// বা mailto: দিয়ে শুরু)।":"केवल असली लिंक डालें (https:// या mailto: से शुरू).",
+    "লেবেল (যেমন GitHub)":"लेबल (जैसे GitHub)", "সেটিংস সংরক্ষণ":"सेटिंग्स सहेजें", "সংরক্ষিত হয়েছে ✅":"सहेजा गया ✅",
+    "ডেটা রপ্তানি ও আমদানি":"डेटा निर्यात और आयात",
+    "পুরো সাইটের ডেটা (স্টোর, আইটেম, FAQ, সেটিংস, মেসেজ) এক JSON ফাইলে সংরক্ষণ বা ফিরিয়ে আনুন।":"पूरी साइट का डेटा (स्टोर, आइटम, FAQ, सेटिंग्स, संदेश) एक JSON फ़ाइल में सहेजें या बहाल करें.",
+    "⬇ JSON রপ্তানি":"⬇ JSON निर्यात", "⬆ JSON আমদানি":"⬆ JSON आयात", "আমদানি সফল ✅":"आयात सफल ✅",
+    "ফাইল পড়া যায়নি — সঠিক JSON দিন।":"फ़ाइल पढ़ी नहीं जा सकी — सही JSON दें.", "লোকাল অ্যাডমিন পাসকোড":"लोकल एडमिन पासकोड",
+    "Firebase কনফিগ বসানো না থাকলে প্যানেলে ঢুকতে এই লোকাল পাসকোড লাগে (এটি ডিফল্ট নয় — আপনি নিজে সেট করেন)। Firebase চালু হলে এটি প্রযোজ্য থাকবে না।":"Firebase कॉन्फ़िग न होने पर पैनल खुलने के लिए यह लोकल पासकोड चाहिए (यह डिफ़ॉल्ट नहीं — आप स्वयं सेट करते हैं). Firebase चालू होने पर यह लागू नहीं रहेगा.",
+    "নতুন পাসকোড":"नया पासकोड", "অন্তত ৪ অক্ষর":"कम से कम 4 अक्षर", "পাসকোড সেট / বদলান":"पासकोड सेट / बदलें",
+    "পাসকোড অন্তত ৪ অক্ষর।":"पासकोड कम से कम 4 अक्षर का हो.", "লোকাল পাসকোড সেট হয়েছে ✅":"लोकल पासकोड सेट हुआ ✅", "অ্যাপ":"ऐप", "AI টুলস":"AI टूल्स",
+    "AI টুল":"AI टूल", "কালারফুল আর্টস":"रंगीन कलाकृतियाँ", "আর্ট":"कला", "পাইথন এক্সটেনশন":"पायथन एक्सटेंशन", "ফাইল সংরক্ষণ":"फ़ाइल स्टोरेज",
+    "ফাইল":"फ़ाइल", "কাস্টম":"कस्टम", "অন্যান্য":"अन्य", "ওয়ালপেপার":"वॉलपेपर", "ছবি":"छवि", "গান":"गाना", "মুভি":"फ़िल्म",
+    "Portfolio · App Store":"Portfolio · App Store", "ওয়েলকাম টু":"में आपका स्वागत है",
+    "আমি অ্যাপ, AI টুল আর ডিজাইন বানাই — পরিষ্কার, দ্রুত আর দেখতে সুন্দর।":"मैं ऐप, AI टूल और डिज़ाइन बनाता हूँ — साफ़, तेज़ और सुंदर.",
+    "যোগাযোগ করুন":"संपर्क करें", "আর্ট ও ডিজাইন":"कला और डिज़ाइन", "পাইথন":"Python", "পরিষ্কার UI ও দ্রুত অভিজ্ঞতা":"साफ़ UI और तेज़ अनुभव",
+    "AI দিয়ে বাস্তব সমাধান":"AI से ठोस समाधान", "রঙিন, চোখে জমে এমন কাজ":"रंगीन, नज़र खींचने वाला काम",
+    "প্র্যাকটিক্যাল স্ক্রিপ্ট ও টুল":"व्यावहारिक स्क्रिप्ट और टूल" , "পরিসংখ্যান ও রিঅ্যাকশন":"आँकड़े और प्रतिक्रियाएँ", "মোট ডাউনলোড":"कुल डाउनलोड", "সেভ":"सहेजे गए", "রিঅ্যাকশন":"प्रतिक्रियाएँ", "এখনো কোনো রিঅ্যাকশন নেই।":"अभी कोई प्रतिक्रिया नहीं।", "আপনিও প্রথম রিঅ্যাকশন দিতে পারেন।":"पहली प्रतिक्रिया आप दें।", "রিঅ্যাকশন দিতে লগ-ইন করুন।":"प्रतिक्रिया देने के लिए लॉगिन करें।", "ধন্যবাদ, রিঅ্যাকশন যোগ হয়েছে!":"धन्यवाद, आपकी प्रतिक्रिया जुड़ गई!", "প্রথম রিঅ্যাকশন দিন":"पहली प्रतिक्रिया दें", "আপনার রিঅ্যাকশন":"आपकी प्रतिक्रिया", "প্লে":"खेलें", "নতুন ট্যাবে খুলুন":"नए टैब में खोलें", "লোড হচ্ছে…":"लोड हो रहा है…", "ফুল স্ক্রিন":"पूरा स्क्रीन", "বন্ধ করুন":"बंद करें" },
   /* --- English (ডিফল্ট) — এখানেই সব UI লেখার মূল অনুবাদ, বাকি ভাষা এখান থেকেই fallback পায় --- */
   en: {
     /* --- নেভিগেশন / চোম্ব --- */
@@ -559,7 +1174,12 @@ const I18N = {
     "যোগাযোগ করুন":"Get in touch",
     "আর্ট ও ডিজাইন":"Art & design", "পাইথন":"Python",
     "পরিষ্কার UI ও দ্রুত অভিজ্ঞতা":"Clean UI, fast experience", "AI দিয়ে বাস্তব সমাধান":"Real solutions with AI",
-    "রঙিন, চোখে জমে এমন কাজ":"Colorful work that catches the eye", "প্র্যাকটিক্যাল স্ক্রিপ্ট ও টুল":"Practical scripts & tools"
+    "রঙিন, চোখে জমে এমন কাজ":"Colorful work that catches the eye", "প্র্যাকটিক্যাল স্ক্রিপ্ট ও টুল":"Practical scripts & tools",
+    /* --- v6.9.8: পরিসংখ্যান + রিঅ্যাকশন --- */
+    "পরিসংখ্যান ও রিঅ্যাকশন":"Stats & reactions", "মোট ডাউনলোড":"Total downloads", "সেভ":"Saves", "রিঅ্যাকশন":"Reactions",
+    "এখনো কোনো রিঅ্যাকশন নেই।":"No reactions yet.", "আপনিও প্রথম রিঅ্যাকশন দিতে পারেন।":"Be the first to react.",
+    "রিঅ্যাকশন দিতে লগ-ইন করুন।":"Sign in to react.", "ধন্যবাদ, রিঅ্যাকশন যোগ হয়েছে!":"Thanks, your reaction was added!",
+    "প্রথম রিঅ্যাকশন দিন":"Add the first reaction", "আপনার রিঅ্যাকশন":"Your reaction", "প্লে":"Play", "নতুন ট্যাবে খুলুন":"Open in new tab", "লোড হচ্ছে…":"Loading…", "ফুল স্ক্রিন":"Full screen", "বন্ধ করুন":"Close"
   }
 };
 
@@ -777,7 +1397,7 @@ const LS = (()=>{
     for(const k of ["stores","items","faq","messages"]) if(!Array.isArray(d[k])) d[k]=b[k];
     d.settings=Object.assign(b.settings,d.settings||{}); if(!Array.isArray(d.settings.social)) d.settings.social=[];
     d.stores.forEach((s,i)=>{ if(typeof s.order!=="number") s.order=i; });
-    d.items.forEach((it,i)=>{ if(typeof it.order!=="number") it.order=i; if(!it.links) it.links={source:"",download:""}; if(!Array.isArray(it.tags)) it.tags=[]; });
+    d.items.forEach((it,i)=>{ if(typeof it.order!=="number") it.order=i; if(!it.links) it.links={source:"",download:"",play:""}; if(it.overlay==null) it.overlay=""; if(!Array.isArray(it.tags)) it.tags=[]; });
     return d; }
   function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
   return {
@@ -893,7 +1513,7 @@ const Activity = {
   async load(){ const k=this._uid(); if(!k){ this._cache={downloads:[],saved:[],messages:[]}; return this._cache; }
     if(MODE==="fs"){ const { doc, getDoc }=FB.api; let d={}; try{ const snap=await getDoc(doc(FB.db,"users",k)); if(snap.exists()) d=snap.data()||{}; }catch(e){} this._cache=d; }
     else { try{ this._cache=JSON.parse(localStorage.getItem("deeo.activity")||"{}"); }catch(e){ this._cache={}; } }
-    this._cache.downloads=this._cache.downloads||[]; this._cache.saved=this._cache.saved||[]; this._cache.messages=this._cache.messages||[];
+    this._cache.downloads=this._cache.downloads||[]; this._cache.saved=this._cache.saved||[]; this._cache.messages=this._cache.messages||[]; this._cache.reactions=this._cache.reactions||{};
     return this._cache;
   },
   async save(){ const k=this._uid(); if(!k) return; const data=this._cache||{downloads:[],saved:[],messages:[]};
@@ -906,6 +1526,98 @@ const Activity = {
   async isSaved(id){ if(!Auth.user) return false; const d=await this.load(); return (d.saved||[]).some(x=>x.id===id); },
   async list(){ return await this.load(); },
   async clear(){ if(!Auth.user) return; this._cache={downloads:[],saved:[],messages:[]}; await this.save(); },
+};
+
+/* =========================================================
+   Stats — প্রতি আইটেমের aggregate ডাউনলোড / সেভ / রিঅ্যাকশন
+   fs: Firestore stats/{itemId} + users/{uid}.reactions; ls: localStorage
+   এক-ক্লিকে একটাই রিঅ্যাকশন; পাল্টালে আগেরটা থেকে -1, নতুনে +1 (transaction)।
+   ========================================================= */
+const REACTS = ["❤️","🔥","👍"];
+const GUEST_REACT_KEY = "deeo.guestreact";      /* {itemId: emoji} — লগ-ইন ছাড়া ডিভাইস-গার্ড */
+const Stats = {
+  _map:{},                                       /* itemId → {downloads,saves,reactions:{emoji:n}} */
+  _subs:new Set(),
+  /* রিঅ্যাকশন বদলালে রেন্ডার আবার চালায় */
+  subscribe(fn){ this._subs.add(fn); return ()=>this._subs.delete(fn); },
+  emit(id){ this._subs.forEach(f=>{ try{ f(id); }catch(e){} }); },
+  _blank(id){ return this._map[id]={ id, downloads:0, saves:0, reactions:{} }; },
+  get(id){ return this._map[id] || this._blank(id); },
+  /* মোট রিঅ্যাকশন সংখ্যা */
+  totalReact(id){ const r=this.get(id).reactions||{}; return REACTS.reduce((a,e)=>a+(r[e]||0),0); },
+  /* এই ভিজিটর এই আইটেমে কোন রিঅ্যাকশন দিয়েছেন */
+  myReact(id){
+    if(MODE==="fs"){ const d=Activity._cache; const mine=d&&d.reactions; if(mine&&mine[id]) return mine[id]; }
+    try{ const g=JSON.parse(localStorage.getItem(GUEST_REACT_KEY)||"{}"); return g[id]||""; }catch(e){ return ""; }
+  },
+  _setMyReact(id,emoji){
+    if(MODE==="fs" && Auth.user){ Activity.load().then(d=>{ d.reactions=d.reactions||{}; if(emoji) d.reactions[id]=emoji; else delete d.reactions[id]; return Activity.save(); }).catch(()=>{}); }
+    try{ const g=JSON.parse(localStorage.getItem(GUEST_REACT_KEY)||"{}"); if(emoji) g[id]=emoji; else delete g[id]; localStorage.setItem(GUEST_REACT_KEY, JSON.stringify(g)); }catch(e){}
+  },
+  async loadOne(id){
+    if(MODE!=="fs"){ try{ const m=JSON.parse(localStorage.getItem("deeo.stats")||"{}"); this._map[id]=m[id]||this._blank(id); }catch(e){ this._blank(id); } return this._map[id]; }
+    const { doc, getDoc }=FB.api; try{ const snap=await getDoc(doc(FB.db,"stats",id)); if(snap.exists()){ const d=snap.data()||{}; this._map[id]={ id, downloads:+d.downloads||0, saves:+d.saves||0, reactions:(d.reactions&&typeof d.reactions==="object")?d.reactions:{} }; } else this._blank(id); }catch(e){ this._blank(id); }
+    return this._map[id];
+  },
+  /* স্টোর/হোম খোলার সময় একসাথে অনেক আইটেমের পরিসংখ্যান */
+  async loadMany(ids){
+    ids=(ids||[]).filter(Boolean); if(!ids.length) return;
+    if(MODE!=="fs"){ try{ const m=JSON.parse(localStorage.getItem("deeo.stats")||"{}"); ids.forEach(id=>{ this._map[id]=m[id]||this._blank(id); }); }catch(e){ ids.forEach(id=>this._blank(id)); } return; }
+    const { collection, doc, getDocs, query:qFn, where, documentId }=FB.api;
+    /* Firestore where-in ৩০-এর বেশি চলে না → চেঙ্ক করি */
+    for(let i=0;i<ids.length;i+=28){
+      const chunk=ids.slice(i,i+28);
+      try{ const q=await getDocs(qFn(collection(FB.db,"stats"), where(documentId(),"in",chunk))); q.forEach(d=>{ const dd=d.data()||{}; this._map[d.id]={ id:d.id, downloads:+dd.downloads||0, saves:+dd.saves||0, reactions:(dd.reactions&&typeof dd.reactions==="object")?dd.reactions:{} }; }); }catch(e){ chunk.forEach(id=>{ if(!this._map[id]) this._blank(id); }); }
+    }
+  },
+  _lsBump(id, mut){
+    const m=JSON.parse(localStorage.getItem("deeo.stats")||"{}"); const cur=m[id]||{ id, downloads:0, saves:0, reactions:{} };
+    mut(cur); cur.downloads=Math.max(0,cur.downloads|0); cur.saves=Math.max(0,cur.saves|0);
+    REACTS.forEach(e=>{ cur.reactions[e]=Math.max(0,(cur.reactions[e]||0)|0); if(!cur.reactions[e]) delete cur.reactions[e]; });
+    m[id]=cur; this._map[id]=cur; try{ localStorage.setItem("deeo.stats", JSON.stringify(m)); }catch(e){}
+  },
+  /* fs মোডে তাৎক্ষণিক UI-এর জন্য শুধু মেমোরি-ক্যাশে ঠিক করা (localStorage ছুঁবে না) */
+  _optBump(id, mut){
+    const cur=this._map[id]?JSON.parse(JSON.stringify(this._map[id])):{ id, downloads:0, saves:0, reactions:{} };
+    mut(cur); cur.downloads=Math.max(0,cur.downloads|0); cur.saves=Math.max(0,cur.saves|0);
+    REACTS.forEach(e=>{ cur.reactions[e]=Math.max(0,(cur.reactions[e]||0)|0); if(!cur.reactions[e]) delete cur.reactions[e]; });
+    this._map[id]=cur;
+  },
+  /* একটাই রাইট পাথ: ফুল-ডক transaction → rules সর্বদা সম্পূর্ণ valid ডক দেখে */
+  async _txWrite(id, mutator){
+    if(!id) return false;
+    if(MODE!=="fs"){ this._lsBump(id, mutator); this.emit(id); return true; }   /* ls = localStorage-ই সত্য */
+    this._optBump(id, mutator);                                                  /* fs = optimistic UI */
+    const { doc, runTransaction }=FB.api;
+    try{
+      await runTransaction(FB.db, async tx=>{
+        const ref=doc(FB.db,"stats",id); const snap=await tx.get(ref);
+        const base=snap.exists()?snap.data():{};
+        const c={ id, downloads:+base.downloads||0, saves:+base.saves||0, reactions:Object.assign({}, base.reactions||{}) };
+        mutator(c);
+        c.downloads=Math.max(0,Math.min(1e7,c.downloads|0)); c.saves=Math.max(0,Math.min(1e7,c.saves|0));
+        REACTS.forEach(e=>{ const v=Math.max(0,(c.reactions[e]||0)|0); if(v) c.reactions[e]=v; else delete c.reactions[e]; });
+        tx.set(ref, c, { merge:false });
+      });
+    }catch(e){ return false; }
+    this.emit(id); return true;
+  },
+  async bumpDownload(id){ await this._txWrite(id, c=>c.downloads=(c.downloads||0)+1); },
+  /* save toggled → delta +1/-1; aggregate + নিজের হিস্ট্রি দুটোই সামলায় */
+  async bumpSave(id, delta){ if(delta) await this._txWrite(id, c=>{ c.saves=Math.max(0,(c.saves||0)+delta); }); },
+  /* একটি রিঅ্যাকশন বেছে নিন; ইতিমধ্যে একইটা দিলে সরে যান (toggle) */
+  async react(id, emoji){
+    if(!id || !REACTS.includes(emoji)) return { ok:false };
+    const prev=this.myReact(id);
+    const on = prev!==emoji;
+    const ok = await this._txWrite(id, c=>{
+      if(prev) c.reactions[prev]=Math.max(0,(c.reactions[prev]||0)-1);
+      if(on) c.reactions[emoji]=(c.reactions[emoji]||0)+1;
+    });
+    if(ok) this._setMyReact(id, on?emoji:"");
+    else if(MODE==="fs") await this.loadOne(id);             /* ব্যর্থ হলে সার্ভার-সত্য কারেক্ট করো */
+    return { ok, on };
+  },
 };
 
 /* =========================================================
@@ -937,18 +1649,57 @@ function coverInner(it){
   const grad = it.coverColor || PALETTE[0];
   const base = img ? `<img class="thumb" data-i18n-keep crossorigin="anonymous" src="${esc(it.coverImage)}" alt="${esc(it.name)}" onerror="this.style.display='none'">` : `<div class="glow" style="background:${esc(grad)}"></div>`;
   const overlay = animOff ? "" : `<canvas class="mosaic" data-grad="${img?"":esc(grad)}" data-img="${img?esc(it.coverImage):""}"></canvas>`;
-  return `<div class="cover">${base}${overlay}<span class="type">${esc(t(it.category||"আইটেম"))}</span></div>`;
+  const svg = (it.overlay && isValidUrl(it.overlay)) ? `<object class="cover-anim" type="image/svg+xml" data="${esc(it.overlay)}" aria-hidden="true" tabindex="-1"></object>` : "";
+  return `<div class="cover">${base}${overlay}${svg}<span class="type">${esc(t(it.category||"আইটেম"))}</span></div>`;
 }
 function tagsHtml(tags){ return (tags||[]).slice(0,4).map(x=>`<span class="chip en" data-i18n-keep>${esc(x)}</span>`).join(""); }
 function flagsHtml(it){ let f=""; if(it.featured) f+='<span class="flag feat">★ ফিচারড</span>'; if(!it.published) f+='<span class="flag draft">খসড়া</span>'; return f; }
 function itemCardHtml(it,i){
-  const dl=it.links&&isValidUrl(it.links.download), src=it.links&&isValidUrl(it.links.source);
+  const dl=it.links&&isValidUrl(it.links.download), src=it.links&&isValidUrl(it.links.source), play=it.links&&isValidUrl(it.links.play);
   return `<article class="card reveal" style="--i:${i%8}">${flagsHtml(it)}${coverInner(it)}
     <div class="card-body"><h3 data-i18n-keep>${esc(it.name)}</h3><p class="tagline" data-i18n-keep>${esc(it.tagline||it.description)}</p>
       <div class="langs">${tagsHtml(it.tags)}</div>
-      <div class="card-actions"><a class="btn sm primary" href="#item/${it.id}" data-link>খুলুন</a>
+      <div class="card-actions"><a class="btn sm primary" href="#item/${it.id}" data-link>খুলুন</a>${play?`<button class="btn sm play" type="button" data-play data-id="${esc(it.id)}" data-url="${esc(it.links.play)}" data-name="${esc(it.name)}">▶ <span>প্লে</span></button>`:""}
         ${src?`<a class="btn sm ghost en" href="${esc(it.links.source)}" target="_blank" rel="noopener">সোর্স</a>`:""}
-        ${dl?`<a class="btn sm ghost" href="${esc(it.links.download)}" target="_blank" rel="noopener" data-download data-name="${esc(it.name)}">ডাউনলোড</a>`:""}</div></div></article>`;
+        ${dl?`<a class="btn sm ghost" href="${esc(it.links.download)}" target="_blank" rel="noopener" data-download data-id="${esc(it.id)}" data-name="${esc(it.name)}">ডাউনলোড</a>`:""}</div>
+      <div class="item-stat" data-stat="${esc(it.id)}">${cardStatInner(it.id)}</div></div></article>`;
+}
+
+/* =========================================================
+   Stats UI — কার্ডে ছোট কাউন্ট, ডিটেইলে সম্পূর্ণ + রিঅ্যাকশন বার
+   ========================================================= */
+function fmtNum(n){ n=n|0; if(n>=1e6) return (n/1e6).toFixed(n>=1e7?0:1).replace(/\.0$/,"")+"M"; if(n>=1e3) return (n/1e3).toFixed(n>=1e4?0:1).replace(/\.0$/,"")+"k"; return String(n); }
+/* কার্ডের পড়ার-মাত্রার সারি (রিঅ্যাকশন নয়, শুধু সংখ্যা) */
+function cardStatInner(id){ const s=Stats.get(id); const tot=Stats.totalReact(id); return `<span class="is-d">⬇ ${fmtNum(s.downloads)}</span><span class="is-r">❤ ${fmtNum(tot)}</span>`; }
+/* রিঅ্যাকশন বারের ভেতরের মার্কআপ */
+function reactBarInner(id){ const my=Stats.myReact(id); const rr=Stats.get(id).reactions||{};
+  return REACTS.map(e=>`<button class="rx${my===e?" on":""}" type="button" data-rx="${e}" data-item="${esc(id)}" aria-pressed="${my===e?"true":"false"}"><span class="rx-e">${e}</span><span class="rx-n">${fmtNum(rr[e]||0)}</span></button>`).join(""); }
+/* বিস্তারিত পাতার সম্পূর্ণ ব্লক */
+function detailStatsHtml(it){ const s=Stats.get(it.id);
+  return `<div class="stat-row">
+      <span class="stat"><i>⬇</i><b data-cd="${esc(it.id)}">${fmtNum(s.downloads)}</b><em>${esc(t("মোট ডাউনলোড"))}</em></span>
+      <span class="stat"><i>★</i><b data-cs="${esc(it.id)}">${fmtNum(s.saves)}</b><em>${esc(t("সেভ"))}</em></span>
+      <span class="stat"><i>❤</i><b data-cr="${esc(it.id)}">${fmtNum(Stats.totalReact(it.id))}</b><em>${esc(t("রিঅ্যাকশন"))}</em></span>
+    </div>
+    <div class="rx-bar" data-rxbar="${esc(it.id)}">${reactBarInner(it.id)}</div>`; }
+/* ক্যাশ থেকে পুরো DOM সতেজ করে */
+function refreshStatsDOM(){
+  document.querySelectorAll("[data-stat]").forEach(el=>{ el.innerHTML=cardStatInner(el.getAttribute("data-stat")); });
+  document.querySelectorAll("[data-rxbar]").forEach(el=>{ el.innerHTML=reactBarInner(el.getAttribute("data-rxbar")); });
+  document.querySelectorAll("[data-cd]").forEach(el=>{ el.textContent=fmtNum(Stats.get(el.getAttribute("data-cd")).downloads); });
+  document.querySelectorAll("[data-cs]").forEach(el=>{ el.textContent=fmtNum(Stats.get(el.getAttribute("data-cs")).saves); });
+  document.querySelectorAll("[data-cr]").forEach(el=>{ el.textContent=fmtNum(Stats.totalReact(el.getAttribute("data-cr"))); });
+}
+/* একবারই: রিঅ্যাকশন ক্লিক + Stats পরিবর্তনে রি-রেন্ডার */
+function initStatsUI(){
+  document.addEventListener("click", async (e)=>{
+    const b=e.target.closest(".rx"); if(!b) return;
+    const id=b.getAttribute("data-item"), emoji=b.getAttribute("data-rx");
+    /* লগ-ইন না থাকলেও চলে (গেস্ট like) — শুধু আইডেন্টিটি localStorage-গার্ড */
+    b.disabled=true;
+    try{ await Stats.react(id, emoji); }finally{ b.disabled=false; }
+  });
+  Stats.subscribe(()=>refreshStatsDOM());
 }
 
 /* ---- অ্যানিমেশন: fade/reveal + drift + mosaic ---- */
@@ -1414,6 +2165,10 @@ async function bootShared(){
   if (isConfigured()) { const ok = await loadFirebase(); MODE = ok ? "fs" : "ls"; }
   await new Promise(res => Auth.onChange(res));
   await loadData();
+  /* সাইন-ইন থাকলে নিজের রিঅ্যাকশন মনে রাখতে Activity লোড + সব প্রকাশিত আইটেমের পরিসংখ্যান */
+  if(Auth.user){ try{ await Activity.load(); }catch(e){} }
+  try{ await Stats.loadMany(S.items.filter(i=>i.published).map(i=>i.id)); }catch(e){}
+  initStatsUI();
   applyAutoLang();
   applyI18n(document.body);
   updateLangBtn();

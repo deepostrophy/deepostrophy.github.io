@@ -196,11 +196,13 @@
       <div class="field"><label>কভার রঙ</label><div class="accent-swatches" id="i-accents"></div></div>
       <div id="cv-link-rows">
         <div class="field"><label>কভার ছবি ফাইট (PNG/JPG)</label><input type="file" id="i-image-file" accept="image/png,image/jpeg,image/webp"/><p class="note" style="margin-top:6px">বড় ছবি স্বয়ংক্রিয়ভাবে ছোট/কম্প্রেস করে ডেটাবেসেই বসে যাবে — আলাদা লিংক লাগবে না।</p></div>
-        <div class="field" style="margin-bottom:0"><label>কভার ছবির লিংক</label><input id="i-image" placeholder="https://… (ছবির সরাসরি লিংক)"/><span class="img-preview" id="i-image-preview"></span></div>
+        <div class="field"><label>কভার ছবির লিংক</label><input id="i-image" placeholder="https://… (ছবির সরাসরি লিংক)"/><span class="img-preview" id="i-image-preview"></span></div>
+        <div class="field" style="margin-bottom:0"><label>কভার অ্যানিমেশন SVG</label><input id="i-overlay" placeholder="https://<তোমার-হোস্ট>.github.io/<repo>/<anim>.svg"/><p class="note" style="margin-top:6px">অ্যানিমেটেড <b>SVG</b> ফাইলটা আরেকটা GitHub Pages repo-তে রেখে তার <b>github.io</b> লিংক দাও — গ্রেডিয়েন্ট/কভারের <b>উপরে</b> বসে চলবে (<b>CSS, SMIL এবং JS</b> — সব ধরনের অ্যানিমেশনই চলবে)। Release asset বা raw লিংক চলবে না।</p></div>
       </div>
     </div>
     <div class="grp"><label>ডাউনলোড ও লিংক</label>
       <div id="dl-link-rows">
+        <div class="field"><label>▶ প্লে / ডেমো লিংক</label><input id="i-play" data-src="play" placeholder="https://<তোমার-হোস্ট>.github.io/<repo>/<game>.html"/><p class="note" style="margin-top:6px">একক-ফাইল HTML গেম সাইটের ভিতরেই চলবে। একটা আলাদা GitHub Pages repo-তে গেমের <b>.html</b> ফাইল রেখে সেই <b>github.io</b> লিংক এখানে দাও (Release-এর asset/ডাউনলোড লিংক চলবে না — সেটা ফাইল নামায়, রান করে না)।</p></div>
         <div class="field"><label>ডাউনলোড লিংক</label><input id="i-download" data-src="download" placeholder="https://github.com/…/releases/download/…/app.zip"/><p class="note" style="margin-top:6px">GitHub Release-এর asset লিংক বা যেকোনো সরাসরি ফাইল লিংক দিন।</p></div>
         <div class="field" style="margin-bottom:0"><label>সোর্স লিংক</label><input id="i-source" data-src="source" placeholder="https://github.com/…"/></div>
       </div>
@@ -374,8 +376,8 @@ function openItemModal(id){
   $("item-store-select").value=it?it.storeId:($("item-store-select").value||S.stores[0].id); $("i-store").innerHTML=$("item-store-select").innerHTML; $("i-store").value=it?it.storeId:S.stores[0].id;
   $("i-id").value=it?it.id:""; $("i-name").value=it?it.name:""; $("i-tagline").value=it?it.tagline||"":""; $("i-desc").value=it?it.description||"":""; fillItemTypeSelect(); const knownCat=it&&it.category?ITEM_TYPES.includes(it.category):false; if(it&&it.category&&!knownCat){ $("i-category").value="__custom__"; $("i-category-custom").value=it.category; } else { $("i-category").value=it?(it.category||"অন্যান্য"):"অ্যাপ"; $("i-category-custom").value=""; } toggleTypeGroups();
   $("i-tags").value=it?(it.tags||[]).join(", "):""; $("i-author").value=it?it.author||"":""; $("i-year").value=it?it.year||"":""; $("i-install").value=it?it.installSteps||"":"";
-  $("i-source").value=it&&it.links?it.links.source||"":""; $("i-download").value=it&&it.links?it.links.download||"":""; $("i-readme").value=it?it.readme||"":"";
-  $("i-image").value=it?it.coverImage||"":""; fillAccents(it?it.coverColor||PALETTE[0]:PALETTE[0]); updateImagePreview();
+  $("i-source").value=it&&it.links?it.links.source||"":""; $("i-download").value=it&&it.links?it.links.download||"":""; $("i-play").value=it&&it.links?it.links.play||"":""; $("i-readme").value=it?it.readme||"":"";
+  $("i-image").value=it?it.coverImage||"":""; $("i-overlay").value=it?it.overlay||"":""; fillAccents(it?it.coverColor||PALETTE[0]:PALETTE[0]); updateImagePreview();
   $("i-published").classList.toggle("on",it?it.published:true); $("i-featured").classList.toggle("on",it?!!it.featured:false);
   imodal.showModal();
 }
@@ -388,8 +390,8 @@ $("im-save").addEventListener("click", async e=>{
   const accOn=document.querySelector("#i-accents .sw-acc.on"); const color=accOn?(accOn.dataset.pal||accOn.style.background):PALETTE[0];
   const existing=$("i-id").value?itemById($("i-id").value):null;
   const obj={ id:$("i-id").value||uid(), storeId:$("i-store").value, name:$("i-name").value.trim(), tagline:$("i-tagline").value.trim(), description:$("i-desc").value.trim(),
-    category: ($("i-category").value==="__custom__" ? ($("i-category-custom").value.trim()||"অন্যান্য") : $("i-category").value), tags:splitList($("i-tags").value), coverColor:color, coverImage:$("i-image").value.trim(),
-    links:{source:$("i-source").value.trim(), download:$("i-download").value.trim()},
+    category: ($("i-category").value==="__custom__" ? ($("i-category-custom").value.trim()||"অন্যান্য") : $("i-category").value), tags:splitList($("i-tags").value), coverColor:color, coverImage:$("i-image").value.trim(), overlay:$("i-overlay").value.trim(),
+    links:{source:$("i-source").value.trim(), download:$("i-download").value.trim(), play:$("i-play").value.trim()},
     readme:$("i-readme").value, author:$("i-author").value.trim(), year:$("i-year").value.trim(), installSteps:$("i-install").value,
     published:$("i-published").classList.contains("on"), featured:$("i-featured").classList.contains("on"),
     order: existing?existing.order:itemsOf($("i-store").value).length };

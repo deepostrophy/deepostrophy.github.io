@@ -46,13 +46,12 @@
   .lang-dd{position:fixed;top:14px;right:14px;z-index:60}
   .lang-trigger{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;
     border-radius:999px;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;white-space:nowrap;
-    background:var(--glass);border:1px solid var(--stroke);backdrop-filter:saturate(150%) blur(14px);
-    -webkit-backdrop-filter:saturate(150%) blur(14px);transition:transform .25s var(--ease),filter .25s var(--ease)}
+    background:#15141f;border:1px solid var(--stroke);transition:transform .25s var(--ease),filter .25s var(--ease)}
   .lang-trigger:hover{transform:translateY(-2px);filter:brightness(1.08)}
   .lang-trigger .ld-cur{color:var(--ink)}
   .lang-trigger .ld-caret{font-size:11px;opacity:.6;margin-left:-2px}
   .lang-menu{position:absolute;top:calc(100% + 10px);right:0;width:236px;max-width:80vw;z-index:90;
-    background:rgba(11,10,22,.92);backdrop-filter:saturate(150%) blur(18px);-webkit-backdrop-filter:saturate(150%) blur(18px);
+    background:rgba(11,10,22,.97);
     border:1px solid var(--stroke-2);border-radius:16px;box-shadow:var(--shadow);padding:8px;
     display:flex;flex-direction:column;gap:6px;animation:lmIn .18s var(--ease);text-align:left}
   .lang-menu[hidden]{display:none}
@@ -117,7 +116,7 @@
     bn: { title:"৪০৪ — DEEPostrophy", desc:"এই ঠিকানায় কিছু পাওয়া যায়নি। DEEPostrophy-তে ফিরে যান।", code:"৪০৪",
           h:"এই ঠিকানায় কিছু নেই", p:"আপনি যে পাতাটি খুঁজছেন তা সরিয়ে ফেলা হয়েছে বা কখনো ছিল না।",
           b1:"হোমে ফিরুন", b2:"যোগাযোগ করুন", lbl:"ভাষা বদলান", search:"ভাষা খুঁজুন…", empty:"কোনো ভাষা মেলেনি" },
-    es: {}, de: {}, ja: {}, fr: {}, pt: {}, hi: {}
+    es: { title:"404 — DEEPostrophy", desc:"No se encontró nada en esta dirección. Vuelve a DEEPostrophy.", code:"404", h:"No hay nada en esta dirección", p:"La página que buscas fue eliminada o nunca existió.", b1:"Volver al inicio", b2:"Contacto", lbl:"Change language", search:"Search languages…", empty:"No language matches" }, de: { title:"404 — DEEPostrophy", desc:"Unter dieser Adresse wurde nichts gefunden. Zurück zu DEEPostrophy.", code:"404", h:"Unter dieser Adresse gibt es nichts", p:"Die gesuchte Seite wurde entfernt oder hat nie existiert.", b1:"Zurück zur Startseite", b2:"Kontakt", lbl:"Change language", search:"Search languages…", empty:"No language matches" }, ja: { title:"404 — DEEPostrophy", desc:"このアドレスには何も見つかりませんでした。DEEPostrophyへ戻ってください。", code:"404", h:"このアドレスには何もありません", p:"お探しのページは削除されたか、もともと存在しませんでした。", b1:"ホームへ戻る", b2:"お問い合わせ", lbl:"Change language", search:"Search languages…", empty:"No language matches" }, fr: { title:"404 — DEEPostrophy", desc:"Rien n'a été trouvé à cette adresse. Retournez à DEEPostrophy.", code:"404", h:"Rien à cette adresse", p:"La page que vous cherchez a été supprimée ou n'a jamais existé.", b1:"Retour à l'accueil", b2:"Contact", lbl:"Change language", search:"Search languages…", empty:"No language matches" }, pt: { title:"404 — DEEPostrophy", desc:"Nada foi encontrado neste endereço. Volte para o DEEPostrophy.", code:"404", h:"Nada existe neste endereço", p:"A página que você procura foi removida ou nunca existiu.", b1:"Voltar ao início", b2:"Contato", lbl:"Change language", search:"Search languages…", empty:"No language matches" }, hi: { title:"404 — DEEPostrophy", desc:"इस पते पर कुछ नहीं मिला। DEEPostrophy पर लौटें।", code:"404", h:"इस पते पर कुछ नहीं है", p:"आप जो पृष्ठ खोज रहे हैं हटा दिया गया है या कभी था ही नहीं।", b1:"होम पर लौटें", b2:"संपर्क करें", lbl:"Change language", search:"Search languages…", empty:"No language matches" }
   };
   function valueFor(code, key){
     var tab = STRINGS[code];
