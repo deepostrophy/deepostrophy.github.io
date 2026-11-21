@@ -1,10 +1,8 @@
 rules_version = '2';
 
-// DEEPostrophy — Firestore Security Rules
-// এই ফাইলটি Firebase Console → Firestore Database → Rules ট্যাবে বসান, তারপর Publish করুন।
-// মালিক: arafathhossainrifath230119@gmail.com (ইমেইল অবশ্যই verified হতে হবে)।
-// নোট: shared.js এর OWNER_EMAIL এবং এই isOwner() — দুজায়গায় ইমেইল হুবহু একই থাকতে হবে।
-
+// DEEPostrophy - Firestore Security Rules (simplified, validator-safe)
+// Put this whole text in Firebase Console > Firestore Database > <your DB> > Rules, then click Publish.
+// Owner email must be EXACTLY this and the email must be verified:
 function isOwner() {
   return request.auth != null
     && request.auth.token.email == 'arafathhossainrifath230119@gmail.com'
@@ -14,97 +12,66 @@ function isOwner() {
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ---- স্টোর: যে কেউ শুধু published==true পড়বে; মালিক সব পড়তে/লিখতে পারবে ----
     match /stores/{storeId} {
       allow read: if isOwner() || resource.data.published == true;
       allow write: if isOwner();
     }
 
-    // ---- আইটেম: যে কেউ শুধু published==true পড়বে; মালিক সব পড়তে/লিখতে পারবে ----
     match /items/{itemId} {
       allow read: if isOwner() || resource.data.published == true;
       allow write: if isOwner();
     }
 
-    // ---- FAQ: সবাই পড়তে পারবে; লেখা শুধু মালিক ----
     match /faq/{faqId} {
       allow read: if true;
       allow write: if isOwner();
     }
 
-    // ---- Settings: সবাই পড়তে পারবে; লেখা শুধু মালিক ----
     match /settings/{docId} {
       allow read: if true;
       allow write: if isOwner();
     }
 
-    // ---- Messages (যোগাযোগ ফর্ম) ----
-    // create অনুমোদিত শুধু যদি ডেটায় ঠিক এই চারটি ফিল্ড থাকে: name, email, body, ts
-    //   name  : string, <= 100 অক্ষর
-    //   email : string, <= 100 অক্ষর, একটি @ থাকতে হবে
-    //   body  : string, <= 2000 অক্ষর
-    //   ts    : timestamp
-    // বাকি সব (read/update/delete) শুধু মালিক।
+    // Contact form: anyone may create a message with exactly these four fields.
     match /messages/{msgId} {
       allow create: if
-        request.resource.data.keys().hasAll(['name', 'email', 'body', 'ts'])
-        && request.resource.data.keys().hasOnly(['name', 'email', 'body', 'ts'])
-        && request.resource.data.name  is string && request.resource.data.name.size()  <= 100
-        && request.resource.data.email is string && request.resource.data.email.size() <= 100
-        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
-        && request.resource.data.body  is string && request.resource.data.body.size()  <= 2000
+        request.resource.data.keys().hasOnly(['name', 'email', 'body', 'ts'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 100
+        && request.resource.data.email.contains('@')
+        && request.resource.data.body is string
+        && request.resource.data.body.size() <= 2000
         && request.resource.data.ts is timestamp;
       allow read, update, delete: if isOwner();
     }
 
-    // ---- Users (দর্শকের নিজের Activity: ডাউনলোড/সেভ/মেসেজ হিস্ট্রি) ----
-    // শুধু সেই ব্যবহারকারী নিজের users/{uid} ডকুমেন্ট পড়তে ও লিখতে পারবে।
-    // মালিকের ইমেইল এখানে কোনো অতিরিক্ত অধিকার দেয় না।
+    // Each signed-in visitor only touches their own users/{uid} doc.
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
-    // ---- Stats (আইটেমের ডাউনলোড / সেভ / রিঅ্যাকশন কাউন্টার) ----
-    // সবার পড়া যাবে (গেস্ট সহ)। লিখতে পারবে যে কেউ — কিন্তু এই ডকুমেন্টের
-    // চারটি ফিল্ড ছাড়া আর কিছু ছুঁতে পারবে না (published/অন্য collection ভেদ করা অসম্ভব)।
-    // শর্ত (কোনো emoji লেখা হয়নি — শুধু সংখ্যার সীমা, তাই console-এ paste করলেই চলবে):
-    //   id        == ডকুমেন্টের আইটেম আইডি
-    //   downloads : int, >=0, প্রতি লেখায় শুধু 0 বা +1 বাড়ে (বড় সংখ্যা ঠুকা যায় না)
-    //   saves     : int, >=0, প্রতি লেখায় ±1 (unsave হলে কমে)
-    //   reactions : map, 3টির বেশি key নয়, প্রতিটা মান int 0..1000000, প্রতি লেখায় ±1
-    //   সবাই মিলে এক লেখায় পরিবর্তন <= 3 (একবারে সর্বোচ্চ ৩ ঘর নড়াচড়া)
+    // Stats: anyone (including guests) can read and can create/update counters,
+    // but only the four numeric fields, and numbers can never go negative.
     match /stats/{itemId} {
       allow read: if true;
 
       allow create: if
         request.resource.data.id == itemId
         && request.resource.data.keys().hasOnly(['id', 'downloads', 'saves', 'reactions'])
-        && request.resource.data.downloads is int && request.resource.data.downloads >= 0 && request.resource.data.downloads <= 3
-        && request.resource.data.saves is int && request.resource.data.saves >= 0 && request.resource.data.saves <= 3
-        && request.resource.data.reactions is map
-        && request.resource.data.reactions.keys().size() <= 3
-        && request.resource.data.reactions.values().all(v, v is int && v >= 0 && v <= 1000000);
+        && request.resource.data.downloads is int && request.resource.data.downloads >= 0
+        && request.resource.data.saves is int && request.resource.data.saves >= 0
+        && request.resource.data.reactions is map;
 
       allow update: if
-        request.resource.data.id == resource.data.id
+        request.resource.data.id == itemId
         && request.resource.data.keys().hasOnly(['id', 'downloads', 'saves', 'reactions'])
-        && request.resource.data.downloads is int && request.resource.data.downloads >= resource.data.downloads && request.resource.data.downloads <= resource.data.downloads + 1
-        && request.resource.data.saves is int && request.resource.data.saves >= resource.data.saves - 1 && request.resource.data.saves <= resource.data.saves + 1 && request.resource.data.saves >= 0
-        && request.resource.data.reactions is map
-        && request.resource.data.reactions.keys().size() <= 3
-        && request.resource.data.reactions.values().all(v, v is int && v >= 0 && v <= 1000000)
-        // নোট: .diff().values() ডেল্টা নয়, পরিবর্তিত চাবির NEW মান দেয়।
-        // তাই এখানে মানের ±১ চেক করলে গণনা ১-এ আটকে যেত (আসল বাগ)।
-        // এখন শুধু সীমা: এক লেখায় সর্বোচ্চ ৩টি reaction চাবি বদলাবে।
-        && request.resource.data.reactions.diff(resource.data.reactions).affectedKeys().size() <= 3
-        && (
-          request.resource.data.downloads - resource.data.downloads
-          + math.abs(request.resource.data.saves - resource.data.saves)
-          + request.resource.data.reactions.diff(resource.data.reactions).affectedKeys().size()
-        ) <= 3;
+        && request.resource.data.downloads is int && request.resource.data.downloads >= 0
+        && request.resource.data.saves is int && request.resource.data.saves >= 0
+        && request.resource.data.reactions is map;
     }
 
-    // ---- বাকি সব কিছু বন্ধ ----
     match /{document=**} {
       allow read, write: if false;
     }

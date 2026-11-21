@@ -504,8 +504,32 @@ async function renderAccount(){
 const playModal=$("play-modal"), playFrame=$("play-frame"), playLoad=$("play-load"), playErr=$("play-err");
 let playTimer=0;
 function showPlayLoad(on){ if(playLoad) playLoad.classList.toggle("hide", !on); }
-function onFrameLoad(){ showPlayLoad(false); clearTimeout(playTimer); }
-function stopPlay(){ if(playFrame){ try{ playFrame.src="about:blank"; }catch(e){} } }
+/* iframe-এর ভেতরের গেমের আসল সাইজ মেপে মোডালের বক্সে scale-to-fit করি (same-origin গেমের জন্য) */
+function playBody(){ return playModal ? playModal.querySelector(".modal-body") : null; }
+function resetFrameFit(){ if(playFrame){ playFrame.style.position=""; playFrame.style.width="100%"; playFrame.style.height="100%"; playFrame.style.transform=""; playFrame.style.left=""; playFrame.style.top=""; playFrame.style.transformOrigin=""; } }
+function fitPlay(){
+  try{
+    if(!playFrame||!playModal||!playModal.open) return;
+    const body=playBody(); if(!body) return;
+    const bw=body.clientWidth, bh=body.clientHeight; if(!bw||!bh) return;
+    let d=null; try{ d=playFrame.contentDocument; }catch(e){ d=null; }
+    if(!d||!d.documentElement){ resetFrameFit(); return; }   /* cross-origin = আগের মতো ১০০% ভরে দেও */
+    const de=d.documentElement, bd=d.body;
+    const nw=Math.max(de.scrollWidth||0, bd?bd.scrollWidth:0, 1);
+    const nh=Math.max(de.scrollHeight||0, bd?bd.scrollHeight:0, 1);
+    playFrame.style.position="absolute"; playFrame.style.transformOrigin="top left";
+    playFrame.style.width=nw+"px"; playFrame.style.height=nh+"px";
+    const s=Math.min(bw/nw, bh/nh, 1);
+    playFrame.style.transform="scale("+s+")";
+    playFrame.style.left=Math.max(0,(bw-nw*s)/2)+"px";
+    playFrame.style.top=Math.max(0,(bh-nh*s)/2)+"px";
+  }catch(e){ resetFrameFit(); }
+}
+let fitTimers=[];
+function scheduleFit(){ clearTimeout(fitTimers[0]); clearTimeout(fitTimers[1]); clearTimeout(fitTimers[2]);
+  fitTimers=[0,150,600,1200].map(ms=>setTimeout(fitPlay, ms)); }
+function onFrameLoad(){ showPlayLoad(false); clearTimeout(playTimer); scheduleFit(); }
+function stopPlay(){ if(playFrame){ try{ playFrame.src="about:blank"; }catch(e){} } resetFrameFit(); }
 function openPlay(url, name){
   if(!playModal||!playFrame||!isValidUrl(url)) return;
   showPlayLoad(true);
@@ -513,6 +537,7 @@ function openPlay(url, name){
   const tt=$("play-title"); if(tt) tt.textContent = "▶ "+(name||"");
   const op=$("play-open"); if(op) op.href=url;
   playFrame.addEventListener("load", onFrameLoad, {once:true});
+  resetFrameFit();
   playFrame.src=url;
   playModal.showModal();
   /* মোবাইল/টাচে সাথে সাথে ফুল-স্ক্রিন → হরাইজন্টাল গেম পুরো ডিভাইস পায় (iOS deny করলে চুপচাপ ফিরে আসে) */
@@ -525,8 +550,10 @@ function openPlay(url, name){
 function closePlay(){ if(playModal&&playModal.open) playModal.close(); }
 function togglePlayFS(){
   if(!playModal) return;
-  if(document.fullscreenElement){ if(document.exitFullscreen) document.exitFullscreen().catch(()=>{}); }
-  else if(playModal.requestFullscreen){ playModal.requestFullscreen().catch(()=>{}); }
+  const done=()=>scheduleFit();
+  if(document.fullscreenElement){ if(document.exitFullscreen) document.exitFullscreen().then(done).catch(done); else done(); }
+  else if(playModal.requestFullscreen){ playModal.requestFullscreen().then(done).catch(done); }
+  else done();
 }
 function initPlayUI(){
   if(!playModal||!playFrame) return;
@@ -534,7 +561,8 @@ function initPlayUI(){
   const fs=$("play-fs"); if(fs){ fs.title=t("ফুল স্ক্রিন"); fs.addEventListener("click", togglePlayFS); }
   if(x) x.setAttribute("aria-label", t("বন্ধ করুন"));
   playModal.addEventListener("close", ()=>{ stopPlay(); clearTimeout(playTimer); });
-  document.addEventListener("fullscreenchange", ()=>{ if(!document.fullscreenElement&&playLoad) showPlayLoad(!playLoad.classList.contains("hide")); });
+  document.addEventListener("fullscreenchange", ()=>{ if(!document.fullscreenElement&&playLoad) showPlayLoad(!playLoad.classList.contains("hide")); scheduleFit(); });
+  window.addEventListener("resize", ()=>{ if(playModal&&playModal.open) scheduleFit(); });
   document.addEventListener("click", e=>{
     const b=e.target.closest("button[data-play]"); if(!b) return;
     e.preventDefault();
