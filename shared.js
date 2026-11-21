@@ -261,7 +261,8 @@ const SHARED_CSS = String.raw`
 
   /* ▶ প্লে / iframe গেম মোডাল */
   .btn.play{background:linear-gradient(96deg,#22c55e,#a3e635);border:none;color:#06210f;box-shadow:0 16px 40px -16px rgba(34,197,94,.5)}
-  dialog.modal.play-modal{width:min(1100px,96vw);max-height:92vh;display:flex;flex-direction:column;padding:0}
+  dialog.modal.play-modal{width:min(1100px,96vw);max-height:92vh;padding:0}
+  dialog.modal.play-modal[open]{display:flex;flex-direction:column}
   .play-modal .modal-head{padding:14px 18px} .play-modal .modal-head h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70vw}
   .play-modal .mh-tools{display:flex;gap:8px;flex:0 0 auto}
   .play-modal .modal-body{padding:0;flex:1 1 auto;min-height:58vh;max-height:none;position:relative;overflow:hidden;display:flex;background:#0a0a12}
@@ -274,7 +275,14 @@ const SHARED_CSS = String.raw`
   dialog.play-modal:fullscreen{width:100vw;max-width:100vw;height:100vh;max-height:100vh;border-radius:0;border:none}
   dialog.play-modal:fullscreen::backdrop{display:none}
   dialog.play-modal:fullscreen .modal-body,dialog.play-modal:fullscreen iframe{min-height:0}
-  @media (max-width:640px){.play-modal .modal-head h3{max-width:58vw} .play-modal .modal-body, .play-modal iframe{min-height:52vh}}
+  @media (max-width:640px),(orientation:landscape) and (max-height:560px){
+    dialog.modal.play-modal{width:100vw;max-width:100vw;height:100vh;height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0}
+    .play-modal .modal-head{padding:8px 12px} .play-modal .modal-head h3{font-size:15px;max-width:55vw}
+    .play-modal .modal-body{min-height:0;flex:1 1 auto}
+    .play-modal iframe{min-height:0;height:100%}
+    .play-modal .modal-foot{padding:8px 12px}
+    dialog.modal.play-modal::backdrop{background:#000}
+  }
   .reduce-motion .play-spin{animation:none;border-top-color:#22c55e}
   .grp{border-top:1px solid var(--stroke);margin:6px 0 14px;padding-top:14px} .grp > label{color:var(--a2);font-size:12.5px;text-transform:none;letter-spacing:.3px;font-weight:800;display:block;margin-bottom:10px}
 
