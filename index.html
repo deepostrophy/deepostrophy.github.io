@@ -194,7 +194,7 @@
   <div class="modal-head"><h3 id="play-title">▶</h3><div class="mh-tools"><button class="mini" id="play-fs" type="button" title="Full screen">⛶</button><button class="mini" id="play-x" type="button" aria-label="Close">✕</button></div></div>
   <div class="modal-body">
     <div class="play-load" id="play-load"><span class="play-spin"></span><span id="play-load-text">লোড হচ্ছে…</span></div>
-    <iframe id="play-frame" title="game" src="about:blank" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms allow-modals" allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope" allowfullscreen></iframe>
+    <iframe id="play-frame" title="game" src="about:blank" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms allow-modals allow-orientation-lock" allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope; screen-wake-lock" allowfullscreen></iframe>
   </div>
   <div class="modal-foot"><p class="note" id="play-err" style="margin:0;color:#ff9a9a;display:none"></p><a class="btn ghost sm en" id="play-open" href="#" target="_blank" rel="noopener">নতুন ট্যাবে খুলুন</a></div>
 </dialog>
@@ -515,6 +515,10 @@ function openPlay(url, name){
   playFrame.addEventListener("load", onFrameLoad, {once:true});
   playFrame.src=url;
   playModal.showModal();
+  /* মোবাইল/টাচে সাথে সাথে ফুল-স্ক্রিন → হরাইজন্টাল গেম পুরো ডিভাইস পায় (iOS deny করলে চুপচাপ ফিরে আসে) */
+  if(window.matchMedia && matchMedia("(pointer:coarse),(max-width:640px)").matches && playModal.requestFullscreen){
+    try{ playModal.requestFullscreen().catch(function(){}); }catch(e){}
+  }
   clearTimeout(playTimer);
   playTimer=setTimeout(()=>{ showPlayLoad(false); }, 12000);
 }

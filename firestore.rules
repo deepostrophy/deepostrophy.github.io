@@ -93,11 +93,14 @@ service cloud.firestore {
         && request.resource.data.reactions is map
         && request.resource.data.reactions.keys().size() <= 3
         && request.resource.data.reactions.values().all(v, v is int && v >= 0 && v <= 1000000)
-        && request.resource.data.reactions.diff(resource.data.reactions).values().all(d, d is int && d >= -1 && d <= 1)
+        // নোট: .diff().values() ডেল্টা নয়, পরিবর্তিত চাবির NEW মান দেয়।
+        // তাই এখানে মানের ±১ চেক করলে গণনা ১-এ আটকে যেত (আসল বাগ)।
+        // এখন শুধু সীমা: এক লেখায় সর্বোচ্চ ৩টি reaction চাবি বদলাবে।
+        && request.resource.data.reactions.diff(resource.data.reactions).affectedKeys().size() <= 3
         && (
           request.resource.data.downloads - resource.data.downloads
           + math.abs(request.resource.data.saves - resource.data.saves)
-          + request.resource.data.reactions.diff(resource.data.reactions).values().size()
+          + request.resource.data.reactions.diff(resource.data.reactions).affectedKeys().size()
         ) <= 3;
     }
 
