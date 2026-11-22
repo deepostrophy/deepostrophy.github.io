@@ -358,6 +358,33 @@ const SHARED_CSS = String.raw`
   .act-item{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:13.5px;padding:8px 10px;border:1px solid var(--stroke);border-radius:10px}
   .act-item .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .act-item .dt{color:var(--muted);flex:none}
 
+  /* ---- মোবাইল/ট্যাবলেট UI অপটিমাইজেশন (additive; ডেস্কটপ-অপরিবর্তিত) ---- */
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  a,button,.rx,.btn,.nav-tool,.nav-signin,.linkbtn,.faq-q,.tab{ -webkit-tap-highlight-color:transparent; touch-action:manipulation }
+  @media(max-width:820px){
+    .nav-tool{height:44px} .burger{height:44px;width:48px}
+    .rx{min-height:44px;padding:10px 16px}
+    .modal-body{max-height:72dvh} .modal-foot{padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+    .helper-panel{max-height:70dvh;bottom:calc(90px + env(safe-area-inset-bottom));right:calc(22px + env(safe-area-inset-right))}
+    .helper-fab{bottom:calc(22px + env(safe-area-inset-bottom));right:calc(22px + env(safe-area-inset-right))}
+    footer{padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+    .play-modal .modal-foot{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  }
+  @media(max-width:600px){
+    .nav-inner{gap:8px;height:60px}
+    .brand .name{font-size:16px} .brand .brand-mark{height:28px}
+    .nav-tools{gap:6px} .nav-tool{height:42px;padding:0 10px;font-size:12px}
+    .nav-signin{padding:10px 12px;font-size:13px} .burger{height:42px;width:44px}
+    .nav-links{inset:60px 3vw auto 3vw}
+    .page{padding:26px 0 64px}
+    .section-head h2{font-size:clamp(22px,6vw,30px)}
+    .hero-feats{gap:10px} .hero-feats .hf{padding:11px 12px}
+    .detail-cover{height:200px;padding:18px}
+    .field input,.field textarea,select.pf,.search input,.lm-search input,#lang-search{font-size:16px}
+    .wrap{width:min(1180px,94vw)}
+  }
+  @media(max-width:430px){ .brand .name{display:none} .brand{gap:0} .nav-inner{gap:6px} }
+
   @media (prefers-reduced-motion: reduce){
     html{scroll-behavior:auto}
     .reveal{opacity:1!important;transform:none!important;transition:none!important}
